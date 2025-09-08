@@ -10,50 +10,122 @@ export const AuthCallback = () => {
     const handleAuthCallback = async () => {
       try {
         if (!supabase) {
-          setStatus('error');
+          console.log('Supabase not configured, redirecting to auth');
+          setTimeout(() => setLocation('/auth/signin'), 1000);
           return;
         }
 
-        const { data, error } = await supabase.auth.getSession();
+        console.log('Processing auth callback...');
+        console.log('Current URL:', window.location.href);
         
-        if (error) {
-          console.error('Auth callback error:', error);
-          setStatus('error');
-          return;
+        // First try to get the current session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
         }
 
-        if (data.session) {
+        if (sessionData.session) {
+          console.log('Found existing session');
           setStatus('success');
-          // Redirect to dashboard after successful confirmation
           setTimeout(() => {
             setLocation('/dashboard');
-          }, 2000);
-        } else {
-          // Try to exchange code for session if present in URL
-          const urlParams = new URLSearchParams(window.location.search);
-          const accessToken = urlParams.get('access_token');
-          const refreshToken = urlParams.get('refresh_token');
+          }, 1500);
+          return;
+        }
+
+        // Check if we have token fragments in the URL hash
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const tokenType = hashParams.get('token_type');
+        const type = hashParams.get('type');
+        
+        console.log('URL hash params:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type, tokenType });
+        
+        // Check URL search params as fallback
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlAccessToken = urlParams.get('access_token');
+        const urlRefreshToken = urlParams.get('refresh_token');
+        
+        console.log('URL search params:', { accessToken: !!urlAccessToken, refreshToken: !!urlRefreshToken });
+
+        if (accessToken && refreshToken) {
+          console.log('Setting session from hash params');
+          const { error: setSessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
           
-          if (accessToken && refreshToken) {
-            await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
+          if (setSessionError) {
+            console.error('Error setting session:', setSessionError);
+            setStatus('error');
+          } else {
+            console.log('Session set successfully');
             setStatus('success');
             setTimeout(() => {
               setLocation('/dashboard');
-            }, 2000);
-          } else {
-            setStatus('error');
+            }, 1500);
           }
+        } else if (urlAccessToken && urlRefreshToken) {
+          console.log('Setting session from URL params');
+          const { error: setSessionError } = await supabase.auth.setSession({
+            access_token: urlAccessToken,
+            refresh_token: urlRefreshToken,
+          });
+          
+          if (setSessionError) {
+            console.error('Error setting session:', setSessionError);
+            setStatus('error');
+          } else {
+            console.log('Session set successfully');
+            setStatus('success');
+            setTimeout(() => {
+              setLocation('/dashboard');
+            }, 1500);
+          }
+        } else if (type === 'signup') {
+          // For email confirmation, we might not get tokens immediately
+          console.log('Email confirmation detected, checking session...');
+          // Wait a bit and check session again
+          setTimeout(async () => {
+            const { data: delayedSession } = await supabase.auth.getSession();
+            if (delayedSession.session) {
+              console.log('Found session after delay');
+              setStatus('success');
+              setTimeout(() => {
+                setLocation('/dashboard');
+              }, 1000);
+            } else {
+              console.log('No session found, email may be confirmed but user needs to sign in');
+              setStatus('success');
+              setTimeout(() => {
+                setLocation('/auth/signin');
+              }, 2000);
+            }
+          }, 1000);
+        } else {
+          console.log('No tokens found in URL, redirecting to sign in');
+          setTimeout(() => {
+            setLocation('/auth/signin');
+          }, 2000);
         }
       } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('Unexpected error in auth callback:', error);
         setStatus('error');
       }
     };
 
+    // Add a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.log('Auth callback timeout, redirecting to sign in');
+      setStatus('error');
+    }, 10000);
+
     handleAuthCallback();
+
+    // Cleanup timeout
+    return () => clearTimeout(timeoutId);
   }, [setLocation]);
 
   return (
