@@ -3,17 +3,9 @@ import { pgTable, text, varchar, boolean, timestamp, integer, date } from "drizz
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  password: text("password").notNull(),
-  name: text("name").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
-});
-
 export const tasks = pgTable("tasks", {
   id: varchar("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull(),
   title: text("title").notNull(),
   description: text("description"),
   completed: boolean("completed").default(false).notNull(),
@@ -24,21 +16,21 @@ export const tasks = pgTable("tasks", {
 
 export const moods = pgTable("moods", {
   id: varchar("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull(),
   mood: text("mood", { enum: ["great", "good", "okay", "stressed", "sad"] }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
 });
 
 export const journals = pgTable("journals", {
   id: varchar("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull(),
   content: text("content").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
 });
 
 export const focusSessions = pgTable("focus_sessions", {
   id: varchar("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull(),
   durationMinutes: integer("duration_minutes").notNull(),
   sessionType: text("session_type", { enum: ["focus", "short_break", "long_break"] }).default("focus").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
@@ -46,18 +38,13 @@ export const focusSessions = pgTable("focus_sessions", {
 
 export const meditations = pgTable("meditations", {
   id: varchar("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull(),
   durationMinutes: integer("duration_minutes").notNull(),
   sessionName: text("session_name").default("Meditation Session").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
 });
 
 // Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  createdAt: true,
-});
-
 export const insertTaskSchema = createInsertSchema(tasks).omit({
   id: true,
   createdAt: true,
@@ -84,9 +71,6 @@ export const insertMeditationSchema = createInsertSchema(meditations).omit({
 });
 
 // Types
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
-
 export type Task = typeof tasks.$inferSelect;
 export type InsertTask = z.infer<typeof insertTaskSchema>;
 

@@ -2,14 +2,11 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { eq, and, desc, gte, sql } from "drizzle-orm";
 import { 
-  users, 
   tasks, 
   moods, 
   journals, 
   focusSessions, 
   meditations,
-  type User,
-  type InsertUser,
   type Task,
   type InsertTask,
   type Mood,
@@ -32,11 +29,6 @@ const client = postgres(connectionString);
 const db = drizzle(client);
 
 export interface IStorage {
-  // User operations
-  getUser(id: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-
   // Task operations
   getTasks(userId: string): Promise<Task[]>;
   getTask(id: string, userId: string): Promise<Task | undefined>;
@@ -77,22 +69,6 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations
-  async getUser(id: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-    return result[0];
-  }
-
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    return result[0];
-  }
-
-  async createUser(user: InsertUser): Promise<User> {
-    const result = await db.insert(users).values(user).returning();
-    return result[0];
-  }
-
   // Task operations
   async getTasks(userId: string): Promise<Task[]> {
     return await db.select().from(tasks)
