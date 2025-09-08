@@ -29,6 +29,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!supabase) {
+      // Mock user for development when Supabase is not configured
+      const mockUser = {
+        id: 'demo-user-id',
+        email: 'demo@example.com',
+        user_metadata: { name: 'Demo User' },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      } as User;
+      
+      setUser(mockUser);
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -47,6 +63,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const signUp = async (email: string, password: string, name: string) => {
+    if (!supabase) {
+      // Mock signup for development
+      const mockUser = {
+        id: 'demo-user-id',
+        email,
+        user_metadata: { name },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      } as User;
+      
+      setUser(mockUser);
+      return { error: null };
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -60,6 +91,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!supabase) {
+      // Mock signin for development
+      const mockUser = {
+        id: 'demo-user-id',
+        email,
+        user_metadata: { name: email.split('@')[0] },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      } as User;
+      
+      setUser(mockUser);
+      return { error: null };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -68,6 +114,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signOut = async () => {
+    if (!supabase) {
+      setUser(null);
+      return;
+    }
     await supabase.auth.signOut();
   };
 

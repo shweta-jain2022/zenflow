@@ -140,7 +140,7 @@ export const TaskList = () => {
                     )}
                     {task.dueDate && (
                       <p className="text-xs text-muted-foreground">
-                        Due: {formatDate(task.dueDate)}
+                        Due: {formatDate(task.dueDate.toString())}
                       </p>
                     )}
                   </div>

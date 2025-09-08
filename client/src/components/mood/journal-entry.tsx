@@ -122,7 +122,7 @@ export const JournalEntry = () => {
                         Today's Reflection
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {formatDate(journal.createdAt)}
+                        {formatDate(journal.createdAt.toString())}
                       </div>
                     </div>
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
