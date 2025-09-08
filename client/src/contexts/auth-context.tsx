@@ -113,10 +113,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return { error: null };
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
+    console.log('Attempting to sign in with:', email);
+    
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    
+    console.log('Sign in result:', { user: data.user?.id, error: error?.message });
+    
     return { error };
   };
 
