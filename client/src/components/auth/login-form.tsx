@@ -73,7 +73,7 @@ export const LoginForm = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center">
             <Brain className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">MindFlow</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">ZenFlow</h1>
           <p className="text-muted-foreground">Productivity meets mindfulness</p>
         </div>
 

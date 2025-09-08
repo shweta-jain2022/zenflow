@@ -38,7 +38,7 @@ function AppContent() {
       <Sidebar />
       
       <div className="flex-1 lg:ml-64 pb-16 lg:pb-0">
-        <TopNav title="MindFlow" />
+        <TopNav title="ZenFlow" />
         
         <main className="flex-1 overflow-y-auto">
           <Switch>

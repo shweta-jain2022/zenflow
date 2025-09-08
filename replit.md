@@ -1,6 +1,6 @@
 # Overview
 
-MindFlow is a comprehensive productivity and mindfulness web application designed to help users manage their daily tasks, maintain focus through timed sessions, practice mindfulness, track their mood and journaling, and monitor their progress over time. The app provides a responsive interface optimized for both desktop and mobile devices, offering a holistic approach to personal well-being and productivity.
+ZenFlow is a comprehensive productivity and mindfulness web application designed to help users manage their daily tasks, maintain focus through timed sessions, practice mindfulness, track their mood and journaling, and monitor their progress over time. The app provides a responsive interface optimized for both desktop and mobile devices, offering a holistic approach to personal well-being and productivity.
 
 # User Preferences
 

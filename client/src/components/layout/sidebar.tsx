@@ -24,7 +24,7 @@ export const Sidebar = () => {
           <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
             <Brain className="w-5 h-5 text-primary" />
           </div>
-          <span className="text-lg font-semibold text-foreground">MindFlow</span>
+          <span className="text-lg font-semibold text-foreground">ZenFlow</span>
         </div>
 
         {/* Navigation */}

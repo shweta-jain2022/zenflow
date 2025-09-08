@@ -22,7 +22,7 @@ export const TopNav = ({ title, onMobileMenuToggle }: TopNavProps) => {
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <span className="ml-2 text-lg font-semibold text-foreground">MindFlow</span>
+          <span className="ml-2 text-lg font-semibold text-foreground">ZenFlow</span>
         </div>
 
         <div className="hidden lg:block">
