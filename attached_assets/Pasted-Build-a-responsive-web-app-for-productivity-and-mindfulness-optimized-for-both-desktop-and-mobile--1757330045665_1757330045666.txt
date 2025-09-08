@@ -1,0 +1,109 @@
+Build a responsive web app for productivity and mindfulness, optimized for both desktop and mobile.
+
+Core Features to include:
+
+User Authentication (Supabase)
+
+Email + password signup and login.
+
+Session persistence (stay logged in).
+
+Protect routes so only logged-in users can access tasks, journal, moods, etc.
+
+Daily Planner & To-Do List
+
+Add, edit, delete, and prioritize tasks.
+
+Calendar-style view for scheduling.
+
+Store tasks in a tasks table in Supabase.
+
+Each task belongs to a specific user.
+
+Focus Timer (Pomodoro / Deep Work)
+
+Customizable work and break intervals.
+
+Timer should run in background and notify when session ends.
+
+Save total focus minutes per user in Supabase (for progress tracking).
+
+Mindfulness Section
+
+Guided breathing animation (inhale/exhale loop).
+
+Option to play short meditation audios (use placeholder files).
+
+Track meditation minutes per user in Supabase.
+
+Mood & Journal Tracker
+
+Daily mood check-in (happy, neutral, stressed, etc.).
+
+Free-form text journal with date stamps.
+
+Save moods in a moods table and journal entries in a journals table in Supabase, linked to user ID.
+
+Progress Dashboard
+
+Weekly summary: tasks completed, total focus time, moods logged, and meditation minutes.
+
+Display as simple charts or streak counters.
+
+All stats pulled from Supabase tables.
+
+Design Requirements:
+
+Clean, minimal UI with soft calming colors (whites, light blues, pastel greens).
+
+Use TailwindCSS for styling.
+
+Mobile-first responsive design, but smooth on desktop.
+
+Dark mode support.
+
+Simple icons (lucide-react or heroicons).
+
+Tech Stack Preferences:
+
+Frontend: React (Vite) + TailwindCSS.
+
+Auth + Database: Supabase (email/password auth, Postgres tables).
+
+State management: simple hooks (useContext/useReducer).
+
+Charts: Recharts or Chart.js.
+
+Secrets handled with environment variables (e.g., SUPABASE_URL, SUPABASE_ANON_KEY).
+
+Database Schema in Supabase:
+
+tasks (id, user_id, title, completed, due_date, priority)
+
+moods (id, user_id, mood, created_at)
+
+journals (id, user_id, content, created_at)
+
+focus_sessions (id, user_id, duration_minutes, created_at)
+
+meditations (id, user_id, duration_minutes, created_at)
+
+Extra polish (if possible):
+
+Add web push or in-app gentle reminders for tasks and mindfulness breaks.
+
+Gamification: streak counters, badges for consistent journaling or focus sessions.
+
+Deliverables:
+
+A working React app scaffolded with Vite.
+
+Supabase client setup in a separate file (supabaseClient.js).
+
+Auth context/provider for managing logged-in state.
+
+Organized folder structure (components/, pages/, hooks/, utils/).
+
+Sample seed data + demo users.
+
+Clean, well-commented code for easy extension.
