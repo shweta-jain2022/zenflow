@@ -78,10 +78,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return { error: null };
     }
 
+    // Get the current domain - it should be the Replit domain
+    const currentDomain = window.location.origin;
+    const redirectTo = `${currentDomain}/auth/callback`;
+    
+    console.log('Using redirect URL for signup:', redirectTo);
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: redirectTo,
         data: {
           name,
         },
