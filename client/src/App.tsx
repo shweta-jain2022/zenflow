@@ -17,6 +17,7 @@ import FocusPage from "@/pages/focus";
 import MindfulnessPage from "@/pages/mindfulness";
 import MoodPage from "@/pages/mood";
 import ProgressPage from "@/pages/progress";
+import { AuthCallback } from "@/pages/auth-callback";
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -30,7 +31,12 @@ function AppContent() {
   }
 
   if (!user) {
-    return <AuthPage />;
+    return (
+      <Switch>
+        <Route path="/auth/callback" component={AuthCallback} />
+        <Route component={AuthPage} />
+      </Switch>
+    );
   }
 
   return (
