@@ -33,10 +33,10 @@ export const Sidebar = () => {
             const isActive = location === item.href;
             return (
               <Link key={item.name} href={item.href}>
-                <a
+                <div
                   data-testid={`nav-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
                   className={`
-                    flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors
+                    flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer
                     ${isActive
                       ? 'bg-primary/10 text-primary'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -45,7 +45,7 @@ export const Sidebar = () => {
                 >
                   <item.icon className="mr-3 h-4 w-4" />
                   {item.name}
-                </a>
+                </div>
               </Link>
             );
           })}
