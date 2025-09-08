@@ -1,0 +1,77 @@
+import { Switch, Route } from "wouter";
+import { queryClient } from "./lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider, useAuth } from "@/contexts/auth-context";
+import { ThemeProvider } from "@/contexts/theme-context";
+import { ProtectedRoute } from "@/components/protected-route";
+import { Sidebar } from "@/components/layout/sidebar";
+import { MobileNav } from "@/components/layout/mobile-nav";
+import { TopNav } from "@/components/layout/top-nav";
+import NotFound from "@/pages/not-found";
+import AuthPage from "@/pages/auth";
+import DashboardPage from "@/pages/dashboard";
+import TasksPage from "@/pages/tasks";
+import FocusPage from "@/pages/focus";
+import MindfulnessPage from "@/pages/mindfulness";
+import MoodPage from "@/pages/mood";
+import ProgressPage from "@/pages/progress";
+
+function AppContent() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
+
+  return (
+    <div className="flex h-screen bg-background">
+      <Sidebar />
+      
+      <div className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+        <TopNav title="MindFlow" />
+        
+        <main className="flex-1 overflow-y-auto">
+          <Switch>
+            <Route path="/" component={DashboardPage} />
+            <Route path="/dashboard" component={DashboardPage} />
+            <Route path="/tasks" component={TasksPage} />
+            <Route path="/focus" component={FocusPage} />
+            <Route path="/mindfulness" component={MindfulnessPage} />
+            <Route path="/mood" component={MoodPage} />
+            <Route path="/progress" component={ProgressPage} />
+            <Route component={NotFound} />
+          </Switch>
+        </main>
+      </div>
+      
+      <MobileNav />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <AppContent />
+          </TooltipProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
