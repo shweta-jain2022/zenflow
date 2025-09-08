@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (!supabase) {
       // Mock user for development when Supabase is not configured
       const mockUser = {
-        id: 'demo-user-id',
+        id: '00000000-0000-0000-0000-000000000000',
         email: 'demo@example.com',
         user_metadata: { name: 'Demo User' },
         app_metadata: {},
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (!supabase) {
       // Mock signup for development
       const mockUser = {
-        id: 'demo-user-id',
+        id: '00000000-0000-0000-0000-000000000000',
         email,
         user_metadata: { name },
         app_metadata: {},
@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (!supabase) {
       // Mock signin for development
       const mockUser = {
-        id: 'demo-user-id',
+        id: '00000000-0000-0000-0000-000000000000',
         email,
         user_metadata: { name: email.split('@')[0] },
         app_metadata: {},

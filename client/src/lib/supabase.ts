@@ -35,6 +35,7 @@ export const supabase = (supabaseUrl && supabaseAnonKey && isValidUrl(supabaseUr
       auth: {
         persistSession: true,
         autoRefreshToken: true,
+        detectSessionInUrl: true,
       },
     })
   : null;

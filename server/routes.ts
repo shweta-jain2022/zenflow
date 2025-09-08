@@ -15,8 +15,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // For now, we'll use a mock user ID - in production this would come from Supabase auth
   const getUserId = (req: any): string => {
     // In production, extract user ID from Supabase JWT token
-    // For demo purposes, using a default user ID
-    return req.headers['user-id'] || 'demo-user-id';
+    // For demo purposes, using a valid UUID format
+    return req.headers['user-id'] || '00000000-0000-0000-0000-000000000000';
   };
 
   // Task routes

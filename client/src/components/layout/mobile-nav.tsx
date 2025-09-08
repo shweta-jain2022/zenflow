@@ -19,16 +19,16 @@ export const MobileNav = () => {
           const isActive = location === item.href;
           return (
             <Link key={item.name} href={item.href}>
-              <a
+              <div
                 data-testid={`mobile-nav-${item.name.toLowerCase()}`}
                 className={`
-                  flex flex-col items-center justify-center space-y-1 transition-colors
+                  flex flex-col items-center justify-center space-y-1 transition-colors cursor-pointer
                   ${isActive ? 'text-primary' : 'text-muted-foreground'}
                 `}
               >
                 <item.icon className="w-5 h-5" />
                 <span className="text-xs">{item.name}</span>
-              </a>
+              </div>
             </Link>
           );
         })}
