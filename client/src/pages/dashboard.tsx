@@ -10,25 +10,36 @@ import { Link } from 'wouter';
 export default function DashboardPage() {
   const { user } = useAuth();
 
-  const { data: tasks = [] } = useQuery<Task[]>({
+  const { data: tasks = [], isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ['/api/tasks'],
     enabled: !!user,
   });
 
-  const { data: focusSessions = [] } = useQuery<FocusSession[]>({
+  const { data: focusSessions = [], isLoading: focusLoading } = useQuery<FocusSession[]>({
     queryKey: ['/api/focus-sessions'],
     enabled: !!user,
   });
 
-  const { data: meditations = [] } = useQuery<Meditation[]>({
+  const { data: meditations = [], isLoading: meditationsLoading } = useQuery<Meditation[]>({
     queryKey: ['/api/meditations'],
     enabled: !!user,
   });
 
-  const { data: moods = [] } = useQuery<Mood[]>({
+  const { data: moods = [], isLoading: moodsLoading } = useQuery<Mood[]>({
     queryKey: ['/api/moods'],
     enabled: !!user,
   });
+
+  // Show loading state while data is being fetched
+  if (tasksLoading || focusLoading || meditationsLoading || moodsLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   // Calculate stats
   const todaysTasks = tasks.filter(task => {
