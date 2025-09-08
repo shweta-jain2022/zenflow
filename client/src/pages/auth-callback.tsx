@@ -86,24 +86,11 @@ export const AuthCallback = () => {
           }
         } else if (type === 'signup') {
           // For email confirmation, we might not get tokens immediately
-          console.log('Email confirmation detected, checking session...');
-          // Wait a bit and check session again
-          setTimeout(async () => {
-            const { data: delayedSession } = await supabase.auth.getSession();
-            if (delayedSession.session) {
-              console.log('Found session after delay');
-              setStatus('success');
-              setTimeout(() => {
-                setLocation('/dashboard');
-              }, 1000);
-            } else {
-              console.log('No session found, email may be confirmed but user needs to sign in');
-              setStatus('success');
-              setTimeout(() => {
-                setLocation('/auth/signin');
-              }, 2000);
-            }
-          }, 1000);
+          console.log('Email confirmation detected, processing...');
+          setStatus('success');
+          setTimeout(() => {
+            setLocation('/auth/signin');
+          }, 2000);
         } else {
           console.log('No tokens found in URL, redirecting to sign in');
           setTimeout(() => {
@@ -148,7 +135,7 @@ export const AuthCallback = () => {
                 </svg>
               </div>
               <h2 className="text-xl font-semibold text-foreground mb-2">Email confirmed!</h2>
-              <p className="text-muted-foreground">Redirecting you to your dashboard...</p>
+              <p className="text-muted-foreground">Your account has been verified. Redirecting to sign in...</p>
             </div>
           )}
           

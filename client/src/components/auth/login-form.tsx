@@ -24,9 +24,17 @@ export const LoginForm = () => {
     const { error } = await signIn(email, password);
     
     if (error) {
+      let errorMessage = error.message;
+      
+      if (error.message?.includes("Email not confirmed")) {
+        errorMessage = "Please check your email and click the confirmation link before signing in.";
+      } else if (error.message?.includes("Invalid login credentials")) {
+        errorMessage = "Invalid email or password. Please check your credentials.";
+      }
+      
       toast({
         title: 'Error signing in',
-        description: error.message,
+        description: errorMessage,
         variant: 'destructive',
       });
     } else {
