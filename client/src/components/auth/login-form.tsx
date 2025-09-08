@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
+import { clearAllCache } from '@/lib/clear-cache';
 
 export const LoginForm = () => {
   const { signIn, signUp } = useAuth();
@@ -132,6 +133,17 @@ export const LoginForm = () => {
               </TabsContent>
               
               <TabsContent value="signup">
+                <div className="mb-4">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={clearAllCache}
+                    className="w-full"
+                  >
+                    Clear Cache & Start Fresh
+                  </Button>
+                </div>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Full Name</Label>
