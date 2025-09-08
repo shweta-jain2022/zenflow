@@ -27,9 +27,9 @@ export const LoginForm = () => {
       let errorMessage = error.message;
       
       if (error.message?.includes("Email not confirmed")) {
-        errorMessage = "Please check your email and click the confirmation link before signing in.";
+        errorMessage = "Please check your email and click the confirmation link to verify your account, then try signing in again.";
       } else if (error.message?.includes("Invalid login credentials")) {
-        errorMessage = "Invalid email or password. Please check your credentials.";
+        errorMessage = "Invalid email or password. Please check your credentials and try again.";
       }
       
       toast({
@@ -66,8 +66,8 @@ export const LoginForm = () => {
       });
     } else {
       toast({
-        title: 'Account created!',
-        description: 'Please check your email to verify your account.',
+        title: 'Account created successfully!',
+        description: 'Please check your email and click the confirmation link to verify your account. After confirming, you can sign in.',
       });
     }
     
