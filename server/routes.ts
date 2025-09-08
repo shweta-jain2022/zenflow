@@ -9,6 +9,7 @@ import {
   insertMeditationSchema 
 } from "@shared/schema";
 import { z } from "zod";
+import { registerIntegrationRoutes } from "./integrations/integration-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware to get user ID from session/auth
@@ -221,6 +222,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch progress stats" });
     }
   });
+
+  // Register integration routes
+  registerIntegrationRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

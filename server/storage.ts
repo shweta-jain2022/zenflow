@@ -7,6 +7,8 @@ import {
   journals, 
   focusSessions, 
   meditations,
+  integrations,
+  syncLogs,
   type Task,
   type InsertTask,
   type Mood,
@@ -16,7 +18,11 @@ import {
   type FocusSession,
   type InsertFocusSession,
   type Meditation,
-  type InsertMeditation
+  type InsertMeditation,
+  type Integration,
+  type InsertIntegration,
+  type SyncLog,
+  type InsertSyncLog
 } from "@shared/schema";
 
 // Database connection
@@ -51,6 +57,17 @@ export interface IStorage {
   // Meditation operations
   getMeditations(userId: string): Promise<Meditation[]>;
   createMeditation(meditation: InsertMeditation): Promise<Meditation>;
+
+  // Integration operations
+  getIntegrations(userId: string): Promise<Integration[]>;
+  getIntegration(id: string, userId: string): Promise<Integration | undefined>;
+  createIntegration(integration: InsertIntegration): Promise<Integration>;
+  updateIntegration(id: string, userId: string, updates: Partial<InsertIntegration>): Promise<Integration | undefined>;
+  deleteIntegration(id: string, userId: string): Promise<boolean>;
+
+  // Sync log operations
+  getSyncLogs(userId: string, integrationId?: string): Promise<SyncLog[]>;
+  createSyncLog(syncLog: InsertSyncLog): Promise<SyncLog>;
 
   // Progress operations
   getProgressStats(userId: string): Promise<{
@@ -148,6 +165,57 @@ export class DatabaseStorage implements IStorage {
 
   async createMeditation(meditation: InsertMeditation): Promise<Meditation> {
     const result = await db.insert(meditations).values(meditation).returning();
+    return result[0];
+  }
+
+  // Integration operations
+  async getIntegrations(userId: string): Promise<Integration[]> {
+    return await db.select().from(integrations)
+      .where(eq(integrations.userId, userId))
+      .orderBy(desc(integrations.createdAt));
+  }
+
+  async getIntegration(id: string, userId: string): Promise<Integration | undefined> {
+    const result = await db.select().from(integrations)
+      .where(and(eq(integrations.id, id), eq(integrations.userId, userId)))
+      .limit(1);
+    return result[0];
+  }
+
+  async createIntegration(integration: InsertIntegration): Promise<Integration> {
+    const result = await db.insert(integrations).values(integration).returning();
+    return result[0];
+  }
+
+  async updateIntegration(id: string, userId: string, updates: Partial<InsertIntegration>): Promise<Integration | undefined> {
+    const result = await db.update(integrations)
+      .set({ ...updates, updatedAt: sql`now()` })
+      .where(and(eq(integrations.id, id), eq(integrations.userId, userId)))
+      .returning();
+    return result[0];
+  }
+
+  async deleteIntegration(id: string, userId: string): Promise<boolean> {
+    const result = await db.delete(integrations)
+      .where(and(eq(integrations.id, id), eq(integrations.userId, userId)))
+      .returning();
+    return result.length > 0;
+  }
+
+  // Sync log operations
+  async getSyncLogs(userId: string, integrationId?: string): Promise<SyncLog[]> {
+    const conditions = integrationId 
+      ? and(eq(syncLogs.userId, userId), eq(syncLogs.integrationId, integrationId))
+      : eq(syncLogs.userId, userId);
+    
+    return await db.select().from(syncLogs)
+      .where(conditions)
+      .orderBy(desc(syncLogs.createdAt))
+      .limit(50);
+  }
+
+  async createSyncLog(syncLog: InsertSyncLog): Promise<SyncLog> {
+    const result = await db.insert(syncLogs).values(syncLog).returning();
     return result[0];
   }
 

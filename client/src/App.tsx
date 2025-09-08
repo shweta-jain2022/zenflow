@@ -17,6 +17,7 @@ import FocusPage from "@/pages/focus";
 import MindfulnessPage from "@/pages/mindfulness";
 import MoodPage from "@/pages/mood";
 import ProgressPage from "@/pages/progress";
+import IntegrationsPage from "@/pages/integrations";
 import { AuthCallback } from "@/pages/auth-callback";
 
 function AppContent() {
@@ -55,6 +56,7 @@ function AppContent() {
             <Route path="/mindfulness" component={MindfulnessPage} />
             <Route path="/mood" component={MoodPage} />
             <Route path="/progress" component={ProgressPage} />
+            <Route path="/integrations" component={IntegrationsPage} />
             <Route component={NotFound} />
           </Switch>
         </main>

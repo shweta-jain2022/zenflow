@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'wouter';
-import { Brain, LayoutDashboard, CheckSquare, Timer, Heart, Smile, TrendingUp, Settings } from 'lucide-react';
+import { Brain, LayoutDashboard, CheckSquare, Timer, Heart, Smile, TrendingUp, Settings, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 
@@ -10,6 +10,7 @@ const navigation = [
   { name: 'Mindfulness', href: '/mindfulness', icon: Heart },
   { name: 'Mood & Journal', href: '/mood', icon: Smile },
   { name: 'Progress', href: '/progress', icon: TrendingUp },
+  { name: 'Integrations', href: '/integrations', icon: Zap },
 ];
 
 export const Sidebar = () => {
