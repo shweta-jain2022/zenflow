@@ -248,9 +248,9 @@ export const OnboardingModal = ({ isOpen, onClose }: OnboardingModalProps) => {
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base font-medium">Water Reminder</FormLabel>
+                    <FormLabel className="text-base font-medium">Water Reminder (pops up every hour)</FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Get gentle reminders to stay hydrated throughout the day
+                      Get gentle reminders to stay hydrated throughout your work day
                     </p>
                   </div>
                   <FormControl>

@@ -23,6 +23,7 @@ import SettingsPage from "@/pages/settings";
 import { AuthCallback } from "@/pages/auth-callback";
 import { GuestBanner } from "@/components/guest-banner";
 import { OnboardingModal } from "@/components/onboarding/onboarding-modal";
+import { WaterReminder } from "@/components/reminders/water-reminder";
 import { Profile } from "@shared/schema";
 
 function AppContent() {
@@ -104,6 +105,9 @@ function AppContent() {
         isOpen={showOnboarding}
         onClose={handleCloseOnboarding}
       />
+      
+      {/* Water Reminder */}
+      <WaterReminder />
     </div>
   );
 }
