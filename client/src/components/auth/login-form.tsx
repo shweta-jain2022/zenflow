@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain } from 'lucide-react';
@@ -12,6 +13,7 @@ export const LoginForm = () => {
   const { signIn, signUp, enterGuestMode } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [keepSignedIn, setKeepSignedIn] = useState(false);
 
   const handleGuestMode = () => {
     enterGuestMode();
@@ -29,7 +31,7 @@ export const LoginForm = () => {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(email, password, keepSignedIn);
     
     if (error) {
       
@@ -130,6 +132,17 @@ export const LoginForm = () => {
                       required
                       data-testid="input-signin-password"
                     />
+                  </div>
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Checkbox 
+                      id="keep-signed-in"
+                      checked={keepSignedIn}
+                      onCheckedChange={(checked) => setKeepSignedIn(checked as boolean)}
+                      data-testid="checkbox-keep-signed-in"
+                    />
+                    <Label htmlFor="keep-signed-in" className="text-sm">
+                      Keep me signed in
+                    </Label>
                   </div>
                   <Button
                     type="submit"
