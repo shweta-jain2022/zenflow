@@ -83,20 +83,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔍 Auth event:', event, 'Has session:', !!session, 'User ID:', session?.user?.id);
+      
       if (event === 'SIGNED_IN' && session) {
+        console.log('✅ Setting user from SIGNED_IN');
         setUser(session.user);
         setLoading(false);
       } else if (event === 'SIGNED_OUT') {
+        console.log('❌ User signed out');
         setUser(null);
         clearAuthCache();
         setLoading(false);
       } else if (event === 'TOKEN_REFRESHED' && session) {
+        console.log('🔄 Token refreshed');
         setUser(session.user);
         setLoading(false);
       } else if (event === 'INITIAL_SESSION' && session) {
+        console.log('🎯 Initial session found');
         setUser(session.user);
         setLoading(false);
       } else {
+        console.log('⚠️ Auth event with no session:', event);
         setLoading(false);
       }
     });

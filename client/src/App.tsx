@@ -22,6 +22,9 @@ import { AuthCallback } from "@/pages/auth-callback";
 
 function AppContent() {
   const { user, loading } = useAuth();
+  
+  // Debug user state changes
+  console.log('🏠 App render - User:', user?.id, 'Loading:', loading);
 
   if (loading) {
     return (
