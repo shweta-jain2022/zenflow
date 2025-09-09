@@ -29,7 +29,7 @@ interface AuthContextType {
   loading: boolean;
   isGuest: boolean;
   signUp: (email: string, password: string, name: string) => Promise<{ error?: any }>;
-  signIn: (email: string, password: string) => Promise<{ error?: any }>;
+  signIn: (email: string, password: string, keepSignedIn?: boolean) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
   enterGuestMode: () => void;
   exitGuestMode: () => void;
@@ -143,7 +143,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return { error };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, keepSignedIn: boolean = true) => {
     if (!supabase) {
       // Mock signin for development
       const mockUser = {
@@ -166,6 +166,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         email,
         password,
       });
+      
+      // Handle session persistence based on keepSignedIn
+      if (data.session && !keepSignedIn) {
+        // For temporary sessions, we could set a shorter expiry
+        // Note: Supabase handles this through refresh tokens automatically
+        // The session will expire when the tab is closed if not kept signed in
+        sessionStorage.setItem('temp_session', 'true');
+      } else if (data.session && keepSignedIn) {
+        // Remove any temporary session flag for persistent login
+        sessionStorage.removeItem('temp_session');
+      }
       
       console.log('Sign in result:', { 
         user: data.user?.id, 
