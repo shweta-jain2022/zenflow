@@ -287,6 +287,7 @@ export const FocusTimer = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="1">1 min (test)</SelectItem>
                   <SelectItem value="25">25 min</SelectItem>
                   <SelectItem value="30">30 min</SelectItem>
                   <SelectItem value="45">45 min</SelectItem>
