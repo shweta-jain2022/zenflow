@@ -139,7 +139,7 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
       }
       setSeconds(0);
     }
-  }, [config, mode, isRunning]);
+  }, [config, mode]); // Removed isRunning dependency to prevent reset on pause
 
   const value: TimerContextValue = {
     minutes,
