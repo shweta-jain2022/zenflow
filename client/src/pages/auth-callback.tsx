@@ -44,6 +44,7 @@ export const AuthCallback = () => {
           console.log('Found existing session');
           setStatus('success');
           setTimeout(() => {
+            console.log('Redirecting to dashboard...');
             setLocation('/dashboard');
           }, 1500);
           return;
