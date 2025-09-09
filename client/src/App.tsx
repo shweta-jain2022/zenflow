@@ -22,6 +22,15 @@ import { AuthCallback } from "@/pages/auth-callback";
 
 function AppContent() {
   const { user, loading } = useAuth();
+  const [location] = useLocation();
+  
+  // Debug route and user state
+  console.log('App state:', { 
+    location, 
+    hasUser: !!user, 
+    loading, 
+    userId: user?.id 
+  });
 
   if (loading) {
     return (
@@ -57,7 +66,7 @@ function AppContent() {
             <Route path="/mood" component={MoodPage} />
             <Route path="/progress" component={ProgressPage} />
             <Route path="/integrations" component={IntegrationsPage} />
-            <Route component={NotFound} />
+            <Route path="*" component={NotFound} />
           </Switch>
         </main>
       </div>

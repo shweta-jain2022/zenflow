@@ -67,8 +67,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return;
     }
 
-    // Clear any stale auth state on startup
-    clearAuthCache();
+    // Only clear cache if there are error conditions, not on every startup
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
@@ -76,6 +75,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.log('Session error on startup:', error.message);
         clearAuthCache();
       }
+      console.log('Initial session check:', !!session?.user, session?.user?.id);
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -87,17 +87,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log('Auth state change:', event, !!session?.user);
       
       if (event === 'SIGNED_IN' && session) {
+        console.log('Setting user from SIGNED_IN event:', session.user.id);
         setUser(session.user);
-        // Add small delay for first signin to ensure state propagates
-        setTimeout(() => setLoading(false), 100);
+        setLoading(false);
       } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out, clearing state');
         setUser(null);
         clearAuthCache();
         setLoading(false);
       } else if (event === 'TOKEN_REFRESHED' && session) {
+        console.log('Token refreshed, updating user');
+        setUser(session.user);
+        setLoading(false);
+      } else if (event === 'INITIAL_SESSION' && session) {
+        console.log('Initial session found:', session.user.id);
         setUser(session.user);
         setLoading(false);
       } else {
+        console.log('Auth event with no session:', event);
         setLoading(false);
       }
     });
@@ -126,9 +133,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const redirectTo = `${currentDomain}/auth/callback`;
     
     console.log('Using redirect URL for signup:', redirectTo);
-    
-    // Clear cache before signup to ensure clean state
-    clearAuthCache();
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -160,9 +164,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     console.log('Attempting to sign in with:', email);
-    
-    // Clear cache before attempting sign in to avoid stale auth state
-    clearAuthCache();
     
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
