@@ -6,7 +6,8 @@ import {
   insertMoodSchema, 
   insertJournalSchema, 
   insertFocusSessionSchema, 
-  insertMeditationSchema 
+  insertMeditationSchema,
+  insertProfileSchema 
 } from "@shared/schema";
 import { z } from "zod";
 import { registerIntegrationRoutes } from "./integrations/integration-routes";
@@ -207,6 +208,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         console.error("Error creating meditation:", error);
         res.status(500).json({ message: "Failed to create meditation" });
+      }
+    }
+  });
+
+  // Profile routes
+  app.get("/api/profiles", async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const profile = await storage.getProfile(userId);
+      res.json(profile);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      res.status(500).json({ message: "Failed to fetch profile" });
+    }
+  });
+
+  app.post("/api/profiles", async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const validatedData = insertProfileSchema.parse({
+        ...req.body,
+        userId,
+      });
+      const profile = await storage.createOrUpdateProfile(validatedData);
+      res.status(201).json(profile);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid profile data", errors: error.errors });
+      } else {
+        console.error("Error creating/updating profile:", error);
+        res.status(500).json({ message: "Failed to create/update profile" });
       }
     }
   });

@@ -9,6 +9,7 @@ import {
   meditations,
   integrations,
   syncLogs,
+  profiles,
   type Task,
   type InsertTask,
   type Mood,
@@ -22,7 +23,9 @@ import {
   type Integration,
   type InsertIntegration,
   type SyncLog,
-  type InsertSyncLog
+  type InsertSyncLog,
+  type Profile,
+  type InsertProfile
 } from "@shared/schema";
 
 // Database connection
@@ -68,6 +71,10 @@ export interface IStorage {
   // Sync log operations
   getSyncLogs(userId: string, integrationId?: string): Promise<SyncLog[]>;
   createSyncLog(syncLog: InsertSyncLog): Promise<SyncLog>;
+
+  // Profile operations
+  getProfile(userId: string): Promise<Profile | undefined>;
+  createOrUpdateProfile(profile: InsertProfile): Promise<Profile>;
 
   // Progress operations
   getProgressStats(userId: string): Promise<{
@@ -217,6 +224,32 @@ export class DatabaseStorage implements IStorage {
   async createSyncLog(syncLog: InsertSyncLog): Promise<SyncLog> {
     const result = await db.insert(syncLogs).values(syncLog).returning();
     return result[0];
+  }
+
+  // Profile operations
+  async getProfile(userId: string): Promise<Profile | undefined> {
+    const result = await db.select().from(profiles).where(eq(profiles.userId, userId));
+    return result[0];
+  }
+
+  async createOrUpdateProfile(profile: InsertProfile): Promise<Profile> {
+    const existing = await this.getProfile(profile.userId);
+    
+    if (existing) {
+      // Update existing profile
+      const result = await db.update(profiles)
+        .set({
+          ...profile,
+          updatedAt: new Date(),
+        })
+        .where(eq(profiles.userId, profile.userId))
+        .returning();
+      return result[0];
+    } else {
+      // Create new profile
+      const result = await db.insert(profiles).values(profile).returning();
+      return result[0];
+    }
   }
 
   // Progress operations
