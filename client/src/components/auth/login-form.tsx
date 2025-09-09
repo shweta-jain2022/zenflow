@@ -24,13 +24,6 @@ export const LoginForm = () => {
     const { error } = await signIn(email, password);
     
     if (error) {
-      console.error('Sign in error details:', {
-        message: error.message,
-        status: (error as any)?.status,
-        statusCode: (error as any)?.statusCode,
-        details: (error as any)?.details,
-        error
-      });
       
       let errorMessage = error.message;
       

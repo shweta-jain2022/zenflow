@@ -37,7 +37,6 @@ const isValidKey = (key: string) => {
   return key.length > 100 && (key.startsWith('eyJ') || key.startsWith('sb-'));
 };
 
-// Configuration is working correctly
 
 if (!supabaseUrl || !supabaseAnonKey || !isValidUrl(supabaseUrl) || !isValidKey(supabaseAnonKey)) {
   console.warn('Supabase environment variables not properly configured. Using mock auth for development.');
