@@ -27,6 +27,7 @@ import { GuestBanner } from "@/components/guest-banner";
 import { OnboardingModal } from "@/components/onboarding/onboarding-modal";
 import { WaterReminder } from "@/components/reminders/water-reminder";
 import { BreakReminder } from "@/components/reminders/break-reminder";
+import { EndOfDayReminder } from "@/components/reminders/end-of-day-reminder";
 import { Profile } from "@shared/schema";
 
 function AppContent() {
@@ -114,6 +115,9 @@ function AppContent() {
       
       {/* Break Reminder */}
       <BreakReminder />
+      
+      {/* End of Day Reminder */}
+      <EndOfDayReminder />
     </div>
   );
 }
