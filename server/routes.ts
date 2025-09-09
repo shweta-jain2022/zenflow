@@ -14,10 +14,9 @@ import { registerIntegrationRoutes } from "./integrations/integration-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware to get user ID from session/auth
-  // For now, we'll use a mock user ID - in production this would come from Supabase auth
   const getUserId = (req: any): string => {
-    // Extract user ID from Supabase JWT token or fall back to demo user
-    return req.headers['user-id'] || '00000000-0000-0000-0000-000000000000';
+    // Extract user ID from request body (sent by frontend) or headers
+    return req.body?.userId || req.headers['user-id'] || '208b86fe-e110-4a7c-9996-b04cceadd9ec';
   };
 
   // Task routes
