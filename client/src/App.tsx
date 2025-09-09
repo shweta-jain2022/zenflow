@@ -28,7 +28,6 @@ import { Profile } from "@shared/schema";
 function AppContent() {
   const { user, loading, isGuest } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
   
   // Check if user has a profile for onboarding
   const { data: profile, isLoading: profileLoading } = useQuery<Profile>({
@@ -36,19 +35,22 @@ function AppContent() {
     enabled: !!user && !isGuest,
   });
   
-  // Auto-show onboarding for new users (only once per session)
+  // Auto-show onboarding for new users without profiles
   useEffect(() => {
-    if (user && !isGuest && !profileLoading && !hasCheckedOnboarding) {
-      setHasCheckedOnboarding(true);
-      if (!profile) {
-        setShowOnboarding(true);
-      }
+    if (user && !isGuest && !profileLoading) {
+      // Show onboarding only if no profile exists
+      setShowOnboarding(!profile);
+    } else {
+      // Hide onboarding for guest users or when loading
+      setShowOnboarding(false);
     }
-  }, [user, isGuest, profileLoading, profile, hasCheckedOnboarding]);
+  }, [user, isGuest, profileLoading, profile]);
   
   // Handle closing onboarding
   const handleCloseOnboarding = () => {
     setShowOnboarding(false);
+    // Invalidate profile query to refresh data after onboarding
+    queryClient.invalidateQueries({ queryKey: ['/api/profiles'] });
   };
 
   // Show loading for any auth state transition
