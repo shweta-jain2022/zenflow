@@ -19,6 +19,7 @@ import MindfulnessPage from "@/pages/mindfulness";
 import MoodPage from "@/pages/mood";
 import ProgressPage from "@/pages/progress";
 import IntegrationsPage from "@/pages/integrations";
+import SettingsPage from "@/pages/settings";
 import { AuthCallback } from "@/pages/auth-callback";
 import { GuestBanner } from "@/components/guest-banner";
 import { OnboardingModal } from "@/components/onboarding/onboarding-modal";
@@ -78,6 +79,7 @@ function AppContent() {
             <Route path="/mood" component={MoodPage} />
             <Route path="/progress" component={ProgressPage} />
             <Route path="/integrations" component={IntegrationsPage} />
+            <Route path="/settings" component={SettingsPage} />
             <Route path="*" component={NotFound} />
           </Switch>
         </main>
