@@ -9,6 +9,21 @@ export const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
+        // Clear any cached auth state first
+        try {
+          localStorage.removeItem('supabase.auth.token');
+          const keysToRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('supabase.auth')) {
+              keysToRemove.push(key);
+            }
+          }
+          keysToRemove.forEach(key => localStorage.removeItem(key));
+        } catch (e) {
+          // Ignore errors
+        }
+
         if (!supabase) {
           console.log('Supabase not configured, redirecting to auth');
           setTimeout(() => setLocation('/auth/signin'), 1000);

@@ -2,6 +2,28 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
+// Helper function to clear all auth-related cache
+const clearAuthCache = () => {
+  try {
+    // Clear localStorage items related to Supabase auth
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('supabase') || key.includes('auth'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    // Clear sessionStorage
+    sessionStorage.clear();
+    
+    console.log('Auth cache cleared automatically');
+  } catch (error) {
+    console.log('Error clearing cache:', error);
+  }
+};
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -84,6 +106,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     
     console.log('Using redirect URL for signup:', redirectTo);
     
+    // Clear cache before signup to ensure clean state
+    clearAuthCache();
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -115,12 +140,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     console.log('Attempting to sign in with:', email);
     
+    // Clear cache before attempting sign in to avoid stale auth state
+    clearAuthCache();
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
     console.log('Sign in result:', { user: data.user?.id, error: error?.message });
+    
+    // If there's an auth-related error, clear cache again
+    if (error && (error.message?.includes('Email not confirmed') || error.message?.includes('Invalid'))) {
+      clearAuthCache();
+    }
     
     return { error };
   };
