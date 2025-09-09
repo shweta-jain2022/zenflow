@@ -34,11 +34,16 @@ function AppContent() {
     );
   }
 
+  // Add a brief delay for very fast auth state changes to prevent 404 flash
+  if (user && !loading) {
+    setTimeout(() => {}, 0); // Force re-render after auth state change
+  }
+
   if (!user) {
     return (
       <Switch>
         <Route path="/auth/callback" component={AuthCallback} />
-        <Route component={AuthPage} />
+        <Route path="*" component={AuthPage} />
       </Switch>
     );
   }

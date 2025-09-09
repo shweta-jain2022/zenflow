@@ -76,7 +76,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         clearAuthCache();
       }
       setUser(session?.user ?? null);
-      setLoading(false);
+      
+      // Add small delay to prevent 404 flash on fast auth state changes
+      setTimeout(() => setLoading(false), session?.user ? 100 : 0);
     });
 
     // Listen for auth changes
@@ -88,7 +90,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (event === 'SIGNED_IN' && session) {
         console.log('✅ Setting user from SIGNED_IN');
         setUser(session.user);
-        setLoading(false);
+        // Small delay to ensure smooth transition
+        setTimeout(() => setLoading(false), 50);
       } else if (event === 'SIGNED_OUT') {
         console.log('❌ User signed out');
         setUser(null);
@@ -101,7 +104,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else if (event === 'INITIAL_SESSION' && session) {
         console.log('🎯 Initial session found');
         setUser(session.user);
-        setLoading(false);
+        setTimeout(() => setLoading(false), 50);
       } else {
         console.log('⚠️ Auth event with no session:', event);
         setLoading(false);
