@@ -75,7 +75,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.log('Session error on startup:', error.message);
         clearAuthCache();
       }
-      console.log('Initial session check:', !!session?.user, session?.user?.id);
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -84,27 +83,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state change:', event, !!session?.user);
-      
       if (event === 'SIGNED_IN' && session) {
-        console.log('Setting user from SIGNED_IN event:', session.user.id);
         setUser(session.user);
         setLoading(false);
       } else if (event === 'SIGNED_OUT') {
-        console.log('User signed out, clearing state');
         setUser(null);
         clearAuthCache();
         setLoading(false);
       } else if (event === 'TOKEN_REFRESHED' && session) {
-        console.log('Token refreshed, updating user');
         setUser(session.user);
         setLoading(false);
       } else if (event === 'INITIAL_SESSION' && session) {
-        console.log('Initial session found:', session.user.id);
         setUser(session.user);
         setLoading(false);
       } else {
-        console.log('Auth event with no session:', event);
         setLoading(false);
       }
     });

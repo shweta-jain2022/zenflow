@@ -22,15 +22,6 @@ import { AuthCallback } from "@/pages/auth-callback";
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [location] = useLocation();
-  
-  // Debug route and user state
-  console.log('App state:', { 
-    location, 
-    hasUser: !!user, 
-    loading, 
-    userId: user?.id 
-  });
 
   if (loading) {
     return (
