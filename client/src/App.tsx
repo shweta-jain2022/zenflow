@@ -24,6 +24,7 @@ import { AuthCallback } from "@/pages/auth-callback";
 import { GuestBanner } from "@/components/guest-banner";
 import { OnboardingModal } from "@/components/onboarding/onboarding-modal";
 import { WaterReminder } from "@/components/reminders/water-reminder";
+import { BreakReminder } from "@/components/reminders/break-reminder";
 import { Profile } from "@shared/schema";
 
 function AppContent() {
@@ -108,6 +109,9 @@ function AppContent() {
       
       {/* Water Reminder */}
       <WaterReminder />
+      
+      {/* Break Reminder */}
+      <BreakReminder />
     </div>
   );
 }
