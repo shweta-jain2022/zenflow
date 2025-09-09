@@ -33,6 +33,16 @@ export default function DashboardPage() {
     enabled: !!user,
   });
 
+  // Task completion mutation - must be before any early returns
+  const toggleTaskMutation = useMutation({
+    mutationFn: async ({ taskId, completed }: { taskId: string; completed: boolean }) => {
+      return await apiRequest('PATCH', `/api/tasks/${taskId}`, { completed });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+    },
+  });
+
   // Show loading state while data is being fetched
   if (tasksLoading || focusLoading || meditationsLoading || moodsLoading) {
     return (
@@ -52,16 +62,6 @@ export default function DashboardPage() {
   });
 
   const completedTodaysTasks = todaysTasks.filter(task => task.completed);
-
-  // Task completion mutation
-  const toggleTaskMutation = useMutation({
-    mutationFn: async ({ taskId, completed }: { taskId: string; completed: boolean }) => {
-      return await apiRequest('PATCH', `/api/tasks/${taskId}`, { completed });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
-    },
-  });
 
   const totalFocusTime = focusSessions.reduce((total, session) => total + session.durationMinutes, 0);
   const totalMeditationTime = meditations.reduce((total, meditation) => total + meditation.durationMinutes, 0);
