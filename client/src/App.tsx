@@ -37,16 +37,14 @@ function AppContent() {
     enabled: !!user && !isGuest,
   });
   
-  // Auto-show onboarding for new users without profiles (only on initial check)
+  // Auto-show onboarding for new users without profiles
   useEffect(() => {
-    if (user && !isGuest && !profileLoading && !hasInitiallyChecked && !onboardingDismissed) {
+    if (user && !isGuest && !profileLoading && !hasInitiallyChecked) {
       setHasInitiallyChecked(true);
-      // Show onboarding only if no profile exists
-      if (!profile) {
-        setShowOnboarding(true);
-      }
+      // Show onboarding ONLY if no profile exists (ignore dismiss state for true new users)
+      setShowOnboarding(!profile);
     }
-  }, [user, isGuest, profileLoading, profile, hasInitiallyChecked, onboardingDismissed]);
+  }, [user, isGuest, profileLoading, profile, hasInitiallyChecked]);
   
   // Handle closing onboarding
   const handleCloseOnboarding = () => {

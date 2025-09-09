@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
+import { Profile } from '@shared/schema';
 import { Sparkles } from 'lucide-react';
 
 const onboardingSchema = z.object({
@@ -33,6 +34,12 @@ export const OnboardingModal = ({ isOpen, onClose }: OnboardingModalProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   
+  // Fetch existing profile to pre-populate form
+  const { data: profile } = useQuery<Profile>({
+    queryKey: ['/api/profiles'],
+    enabled: !!user && isOpen,
+  });
+  
   const form = useForm<OnboardingForm>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
@@ -42,6 +49,18 @@ export const OnboardingModal = ({ isOpen, onClose }: OnboardingModalProps) => {
       waterReminder: true,
     },
   });
+  
+  // Update form with existing profile data when available
+  useEffect(() => {
+    if (profile && isOpen) {
+      form.reset({
+        workStartTime: profile.workStartTime || '09:00',
+        workEndTime: profile.workEndTime || '17:00',
+        breakFrequency: profile.breakFrequency || '30',
+        waterReminder: profile.waterReminder ?? true,
+      });
+    }
+  }, [profile, isOpen, form]);
 
   const saveSettingsMutation = useMutation({
     mutationFn: async (data: OnboardingForm) => {
