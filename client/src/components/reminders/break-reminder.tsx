@@ -40,7 +40,10 @@ export const BreakReminder = () => {
   const [showReminder, setShowReminder] = useState(false);
   const [currentActivity, setCurrentActivity] = useState('');
   const [lastFocusEndTime, setLastFocusEndTime] = useState<Date | null>(null);
+  const [breakTimer, setBreakTimer] = useState(0); // Timer in seconds
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
   const wasFocusModeActive = useRef(isFocusModeActive);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Get user profile to check break settings and work hours
   const { data: profile } = useQuery<Profile>({
@@ -117,7 +120,10 @@ export const BreakReminder = () => {
       if (timeUntilBreak > 0) {
         const timeoutId = setTimeout(() => {
           if (isInWorkHours() && !isFocusModeActive) {
+            const duration = parseInt(profile.breakDuration || '5');
             setCurrentActivity(getRandomActivity(profile.breakDuration || '5'));
+            setBreakTimer(duration * 60); // Convert minutes to seconds
+            setIsTimerRunning(true);
             setShowReminder(true);
           }
           // Schedule next break
@@ -130,7 +136,10 @@ export const BreakReminder = () => {
         const frequencyMs = parseInt(profile.breakFrequency) * 60 * 1000;
         const timeoutId = setTimeout(() => {
           if (isInWorkHours() && !isFocusModeActive) {
+            const duration = parseInt(profile.breakDuration || '5');
             setCurrentActivity(getRandomActivity(profile.breakDuration || '5'));
+            setBreakTimer(duration * 60); // Convert minutes to seconds
+            setIsTimerRunning(true);
             setShowReminder(true);
           }
           scheduleNextBreak();
@@ -154,6 +163,33 @@ export const BreakReminder = () => {
     wasFocusModeActive.current = isFocusModeActive;
   }, [isFocusModeActive]);
 
+  // Break timer countdown effect
+  useEffect(() => {
+    if (isTimerRunning && breakTimer > 0) {
+      timerIntervalRef.current = setInterval(() => {
+        setBreakTimer(prev => {
+          if (prev <= 1) {
+            setIsTimerRunning(false);
+            setShowReminder(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [isTimerRunning, breakTimer]);
+
   // Don't render if not applicable
   if (isGuest || !user || !showReminder || !profile?.breakFrequency) {
     return null;
@@ -161,6 +197,18 @@ export const BreakReminder = () => {
 
   const handleSkip = () => {
     setShowReminder(false);
+    setIsTimerRunning(false);
+    setBreakTimer(0);
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+  };
+
+  // Format timer display (MM:SS)
+  const formatTimer = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -175,9 +223,19 @@ export const BreakReminder = () => {
             </h3>
           </div>
           
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
             {currentActivity}
           </p>
+
+          {/* Break Timer */}
+          <div className="mb-6">
+            <div className="text-3xl font-mono font-bold text-primary mb-1">
+              {formatTimer(breakTimer)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Break time remaining
+            </div>
+          </div>
 
           {/* Skip Button */}
           <button
