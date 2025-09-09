@@ -1,7 +1,32 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function NotFound() {
+  const { user, loading } = useAuth();
+  const [showNotFound, setShowNotFound] = useState(false);
+  
+  useEffect(() => {
+    // Only show 404 after a delay if user is definitely not authenticated
+    const timer = setTimeout(() => {
+      if (!user && !loading) {
+        setShowNotFound(true);
+      }
+    }, 500); // Wait 500ms before showing 404
+    
+    return () => clearTimeout(timer);
+  }, [user, loading]);
+  
+  // Don't show 404 for authenticated users or while loading
+  if (user || loading || !showNotFound) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
       <Card className="w-full max-w-md mx-4">
