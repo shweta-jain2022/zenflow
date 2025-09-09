@@ -19,6 +19,7 @@ import MoodPage from "@/pages/mood";
 import ProgressPage from "@/pages/progress";
 import IntegrationsPage from "@/pages/integrations";
 import { AuthCallback } from "@/pages/auth-callback";
+import { GuestBanner } from "@/components/guest-banner";
 
 function AppContent() {
   const { user, loading, isGuest } = useAuth();
@@ -47,6 +48,7 @@ function AppContent() {
       
       <div className="flex-1 lg:ml-64 pb-16 lg:pb-0">
         <TopNav title="ZenFlow" />
+        <GuestBanner />
         
         <main className="flex-1 overflow-y-auto">
           <Switch>
