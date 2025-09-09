@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, boolean, timestamp, integer, date } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, boolean, timestamp, integer, date, time } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -70,6 +70,18 @@ export const syncLogs = pgTable("sync_logs", {
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
 });
 
+export const profiles = pgTable("profiles", {
+  userId: varchar("user_id").primaryKey(), // Use existing structure
+  fullName: text("full_name"),
+  avatarUrl: text("avatar_url"),
+  workStartTime: time("work_start_time"),
+  workEndTime: time("work_end_time"),
+  breakFrequency: text("break_frequency"), // Keep as text to match existing
+  waterReminder: boolean("water_reminder").default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`).notNull(),
+});
+
 // Insert schemas
 export const insertTaskSchema = createInsertSchema(tasks).omit({
   id: true,
@@ -107,6 +119,11 @@ export const insertSyncLogSchema = createInsertSchema(syncLogs).omit({
   createdAt: true,
 });
 
+export const insertProfileSchema = createInsertSchema(profiles).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type Task = typeof tasks.$inferSelect;
 export type InsertTask = z.infer<typeof insertTaskSchema>;
@@ -128,3 +145,6 @@ export type InsertIntegration = z.infer<typeof insertIntegrationSchema>;
 
 export type SyncLog = typeof syncLogs.$inferSelect;
 export type InsertSyncLog = z.infer<typeof insertSyncLogSchema>;
+
+export type Profile = typeof profiles.$inferSelect;
+export type InsertProfile = z.infer<typeof insertProfileSchema>;
