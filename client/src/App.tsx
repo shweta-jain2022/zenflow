@@ -22,21 +22,14 @@ import { AuthCallback } from "@/pages/auth-callback";
 
 function AppContent() {
   const { user, loading } = useAuth();
-  
-  // Debug user state changes
-  console.log('🏠 App render - User:', user?.id, 'Loading:', loading);
 
+  // Show loading for any auth state transition
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
     );
-  }
-
-  // Add a brief delay for very fast auth state changes to prevent 404 flash
-  if (user && !loading) {
-    setTimeout(() => {}, 0); // Force re-render after auth state change
   }
 
   if (!user) {

@@ -76,37 +76,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         clearAuthCache();
       }
       setUser(session?.user ?? null);
-      
-      // Add small delay to prevent 404 flash on fast auth state changes
-      setTimeout(() => setLoading(false), session?.user ? 100 : 0);
+      setLoading(false);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('🔍 Auth event:', event, 'Has session:', !!session, 'User ID:', session?.user?.id);
-      
+    } = supabase.auth.onAuthStateChange((event, session) => {      
       if (event === 'SIGNED_IN' && session) {
-        console.log('✅ Setting user from SIGNED_IN');
         setUser(session.user);
-        // Small delay to ensure smooth transition
-        setTimeout(() => setLoading(false), 50);
+        setLoading(false);
       } else if (event === 'SIGNED_OUT') {
-        console.log('❌ User signed out');
         setUser(null);
         clearAuthCache();
         setLoading(false);
       } else if (event === 'TOKEN_REFRESHED' && session) {
-        console.log('🔄 Token refreshed');
         setUser(session.user);
         setLoading(false);
       } else if (event === 'INITIAL_SESSION' && session) {
-        console.log('🎯 Initial session found');
         setUser(session.user);
-        setTimeout(() => setLoading(false), 50);
+        setLoading(false);
       } else {
-        console.log('⚠️ Auth event with no session:', event);
         setLoading(false);
       }
     });
