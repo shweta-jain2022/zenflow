@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Profile } from '@shared/schema';
 import { useAuth } from '@/contexts/auth-context';
@@ -39,6 +39,8 @@ export const BreakReminder = () => {
   const { isFocusModeActive } = useFocus();
   const [showReminder, setShowReminder] = useState(false);
   const [currentActivity, setCurrentActivity] = useState('');
+  const [lastFocusEndTime, setLastFocusEndTime] = useState<Date | null>(null);
+  const wasFocusModeActive = useRef(isFocusModeActive);
 
   // Get user profile to check break settings and work hours
   const { data: profile } = useQuery<Profile>({
@@ -70,13 +72,22 @@ export const BreakReminder = () => {
     return currentTime >= startTime && currentTime <= endTime;
   };
 
-  // Function to get next break reminder time (start + frequency, then every frequency)
+  // Function to get next break reminder time
   const getNextBreakTime = () => {
-    if (!profile?.workStartTime || !profile?.breakFrequency) return null;
+    if (!profile?.workStartTime || !profile?.breakFrequency || !profile?.breakDuration) return null;
 
     const now = new Date();
-    const [startHour, startMin] = profile.workStartTime.split(':').map(Number);
     const frequencyMinutes = parseInt(profile.breakFrequency);
+    const durationMinutes = parseInt(profile.breakDuration);
+    
+    // If user just came out of focus mode, schedule break for now + break duration
+    if (lastFocusEndTime && (now.getTime() - lastFocusEndTime.getTime()) < 60000) { // Within 1 minute
+      const nextBreakTime = new Date(lastFocusEndTime);
+      nextBreakTime.setMinutes(nextBreakTime.getMinutes() + durationMinutes);
+      return nextBreakTime;
+    }
+    
+    const [startHour, startMin] = profile.workStartTime.split(':').map(Number);
     
     // Create first break time (start + frequency)
     const firstBreakTime = new Date();
@@ -131,7 +142,17 @@ export const BreakReminder = () => {
 
     const cleanup = scheduleNextBreak();
     return cleanup;
-  }, [profile, user, isGuest, isFocusModeActive]);
+  }, [profile, user, isGuest, isFocusModeActive, lastFocusEndTime]);
+
+  // Track when focus mode ends
+  useEffect(() => {
+    // If focus mode just ended (was true, now false)
+    if (wasFocusModeActive.current && !isFocusModeActive) {
+      setLastFocusEndTime(new Date());
+    }
+    
+    wasFocusModeActive.current = isFocusModeActive;
+  }, [isFocusModeActive]);
 
   // Don't render if not applicable
   if (isGuest || !user || !showReminder || !profile?.breakFrequency) {
