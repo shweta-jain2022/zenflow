@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
@@ -28,6 +28,7 @@ import { Profile } from "@shared/schema";
 function AppContent() {
   const { user, loading, isGuest } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
   
   // Check if user has a profile for onboarding
   const { data: profile, isLoading: profileLoading } = useQuery<Profile>({
@@ -35,13 +36,20 @@ function AppContent() {
     enabled: !!user && !isGuest,
   });
   
-  // Show onboarding modal for new authenticated users without profile
-  const shouldShowOnboarding = user && !isGuest && !profileLoading && !profile && !showOnboarding;
+  // Auto-show onboarding for new users (only once per session)
+  useEffect(() => {
+    if (user && !isGuest && !profileLoading && !hasCheckedOnboarding) {
+      setHasCheckedOnboarding(true);
+      if (!profile) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [user, isGuest, profileLoading, profile, hasCheckedOnboarding]);
   
-  // Auto-show onboarding for new users
-  if (shouldShowOnboarding) {
-    setShowOnboarding(true);
-  }
+  // Handle closing onboarding
+  const handleCloseOnboarding = () => {
+    setShowOnboarding(false);
+  };
 
   // Show loading for any auth state transition
   if (loading) {
@@ -90,7 +98,7 @@ function AppContent() {
       {/* Onboarding Modal */}
       <OnboardingModal 
         isOpen={showOnboarding}
-        onClose={() => setShowOnboarding(false)}
+        onClose={handleCloseOnboarding}
       />
     </div>
   );
