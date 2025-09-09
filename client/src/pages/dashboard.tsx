@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { CheckCircle, Clock, Heart, Smile, Plus, BarChart3, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Task, FocusSession, Meditation, Mood } from '@shared/schema';
 import { useAuth } from '@/contexts/auth-context';
 import { useGlobalTimer } from '@/contexts/timer-context';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import { Link } from 'wouter';
 
 export default function DashboardPage() {
@@ -48,6 +49,18 @@ export default function DashboardPage() {
     const today = new Date();
     const taskDate = task.dueDate ? new Date(task.dueDate) : new Date(task.createdAt);
     return taskDate.toDateString() === today.toDateString();
+  });
+
+  const completedTodaysTasks = todaysTasks.filter(task => task.completed);
+
+  // Task completion mutation
+  const toggleTaskMutation = useMutation({
+    mutationFn: async ({ taskId, completed }: { taskId: string; completed: boolean }) => {
+      return await apiRequest('PATCH', `/api/tasks/${taskId}`, { completed });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+    },
   });
 
   const totalFocusTime = focusSessions.reduce((total, session) => total + session.durationMinutes, 0);
@@ -108,7 +121,7 @@ export default function DashboardPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Tasks Today</p>
                 <p className="text-2xl font-bold text-foreground" data-testid="stat-tasks-today">
-                  {todaysTasks.length}
+                  {completedTodaysTasks.length}/{todaysTasks.length}
                 </p>
               </div>
               <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -193,7 +206,16 @@ export default function DashboardPage() {
                     className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg"
                     data-testid={`dashboard-task-${task.id}`}
                   >
-                    <Checkbox checked={task.completed} disabled />
+                    <Checkbox 
+                      checked={task.completed} 
+                      onCheckedChange={(checked) => {
+                        toggleTaskMutation.mutate({ 
+                          taskId: task.id, 
+                          completed: checked as boolean 
+                        });
+                      }}
+                      disabled={toggleTaskMutation.isPending}
+                    />
                     <span className={`flex-1 text-sm ${task.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
                       {task.title}
                     </span>
