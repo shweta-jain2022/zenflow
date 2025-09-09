@@ -67,8 +67,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return;
     }
 
+    // Clear any stale auth state on startup
+    clearAuthCache();
+
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.log('Session error on startup:', error.message);
+        clearAuthCache();
+      }
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -76,8 +83,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, !!session?.user);
+      
+      if (event === 'SIGNED_IN' && session) {
+        setUser(session.user);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        clearAuthCache();
+      } else if (event === 'TOKEN_REFRESHED' && session) {
+        setUser(session.user);
+      }
+      
       setLoading(false);
     });
 
