@@ -20,6 +20,7 @@ const settingsSchema = z.object({
   workStartTime: z.string().default('09:00'),
   workEndTime: z.string().default('17:00'),
   breakFrequency: z.string().default('30'),
+  breakDuration: z.string().default('5'),
   waterReminder: z.boolean().default(true),
 });
 
@@ -41,6 +42,7 @@ export default function SettingsPage() {
       workStartTime: '09:00',
       workEndTime: '17:00',
       breakFrequency: '30',
+      breakDuration: '5',
       waterReminder: true,
     },
   });
@@ -52,6 +54,7 @@ export default function SettingsPage() {
         workStartTime: profile.workStartTime || '09:00',
         workEndTime: profile.workEndTime || '17:00',
         breakFrequency: profile.breakFrequency || '30',
+        breakDuration: profile.breakDuration || '5',
         waterReminder: profile.waterReminder ?? true,
       });
     }
@@ -64,6 +67,7 @@ export default function SettingsPage() {
         workStartTime: data.workStartTime,
         workEndTime: data.workEndTime,
         breakFrequency: data.breakFrequency,
+        breakDuration: data.breakDuration,
         waterReminder: data.waterReminder,
       });
     },
@@ -92,6 +96,13 @@ export default function SettingsPage() {
     { value: '30', label: '30 minutes' },
     { value: '45', label: '45 minutes' },
     { value: '60', label: '60 minutes' },
+  ];
+
+  const breakDurationOptions = [
+    { value: '2', label: '2 minutes' },
+    { value: '5', label: '5 minutes' },
+    { value: '10', label: '10 minutes' },
+    { value: '15', label: '15 minutes' },
   ];
 
   if (isLoading) {
@@ -180,6 +191,36 @@ export default function SettingsPage() {
                               key={option.value} 
                               value={option.value}
                               data-testid={`break-frequency-${option.value}`}
+                            >
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Break Duration */}
+                <FormField
+                  control={form.control}
+                  name="breakDuration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">Duration of Break</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-break-duration">
+                            <SelectValue placeholder="Select duration" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {breakDurationOptions.map((option) => (
+                            <SelectItem 
+                              key={option.value} 
+                              value={option.value}
+                              data-testid={`break-duration-${option.value}`}
                             >
                               {option.label}
                             </SelectItem>

@@ -77,6 +77,7 @@ export const profiles = pgTable("profiles", {
   workStartTime: time("work_start_time"),
   workEndTime: time("work_end_time"),
   breakFrequency: text("break_frequency"), // Keep as text to match existing
+  breakDuration: text("break_duration").default("5"), // Duration of breaks in minutes
   waterReminder: boolean("water_reminder").default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`).notNull(),
