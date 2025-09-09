@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
+import { useGuestRestriction } from '@/hooks/use-guest-restriction';
 
 type MoodType = 'great' | 'good' | 'okay' | 'stressed' | 'sad';
 
@@ -19,6 +20,7 @@ const moodOptions = [
 export const MoodSelector = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { checkGuestRestriction } = useGuestRestriction();
   const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
 
   const saveMoodMutation = useMutation({
@@ -43,6 +45,10 @@ export const MoodSelector = () => {
   };
 
   const handleSubmit = () => {
+    if (checkGuestRestriction('log mood')) {
+      return;
+    }
+    
     if (selectedMood) {
       saveMoodMutation.mutate(selectedMood);
     }

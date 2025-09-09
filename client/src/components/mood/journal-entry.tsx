@@ -8,10 +8,12 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import { Journal } from '@shared/schema';
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
+import { useGuestRestriction } from '@/hooks/use-guest-restriction';
 
 export const JournalEntry = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { checkGuestRestriction } = useGuestRestriction();
   const [content, setContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
@@ -39,6 +41,10 @@ export const JournalEntry = () => {
   });
 
   const handleSave = () => {
+    if (checkGuestRestriction('save journal entries')) {
+      return;
+    }
+    
     if (content.trim()) {
       saveJournalMutation.mutate(content);
     }

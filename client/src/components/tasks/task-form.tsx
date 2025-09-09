@@ -12,6 +12,7 @@ import { insertTaskSchema, Task } from '@shared/schema';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
+import { useGuestRestriction } from '@/hooks/use-guest-restriction';
 
 interface TaskFormProps {
   task?: Task | null;
@@ -21,6 +22,7 @@ interface TaskFormProps {
 export const TaskForm = ({ task, onClose }: TaskFormProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { checkGuestRestriction } = useGuestRestriction();
   
   const form = useForm({
     resolver: zodResolver(insertTaskSchema.extend({
@@ -72,6 +74,10 @@ export const TaskForm = ({ task, onClose }: TaskFormProps) => {
   });
 
   const onSubmit = (data: any) => {
+    if (checkGuestRestriction(task ? 'update tasks' : 'create tasks')) {
+      return;
+    }
+    
     if (task) {
       updateTaskMutation.mutate(data);
     } else {
