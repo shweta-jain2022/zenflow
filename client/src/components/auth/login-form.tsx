@@ -24,12 +24,22 @@ export const LoginForm = () => {
     const { error } = await signIn(email, password);
     
     if (error) {
+      console.error('Sign in error details:', {
+        message: error.message,
+        status: (error as any)?.status,
+        statusCode: (error as any)?.statusCode,
+        details: (error as any)?.details,
+        error
+      });
+      
       let errorMessage = error.message;
       
       if (error.message?.includes("Email not confirmed")) {
         errorMessage = "Please check your email and click the confirmation link to verify your account, then try signing in again.";
       } else if (error.message?.includes("Invalid login credentials")) {
         errorMessage = "Invalid email or password. Please check your credentials and try again.";
+      } else if (error.message?.includes("Connection failed")) {
+        errorMessage = "Connection failed. Please check your internet connection and try again.";
       }
       
       toast({
