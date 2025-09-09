@@ -47,8 +47,6 @@ export const FocusTimer = () => {
 
   const saveSessionMutation = useMutation({
     mutationFn: async (data: { durationMinutes: number; sessionType: string }) => {
-      console.log('Saving session with user ID:', user?.id);
-      console.log('User object:', user);
       return await apiRequest('POST', '/api/focus-sessions', {
         ...data,
         userId: user?.id,
