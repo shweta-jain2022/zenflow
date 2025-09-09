@@ -21,7 +21,7 @@ import IntegrationsPage from "@/pages/integrations";
 import { AuthCallback } from "@/pages/auth-callback";
 
 function AppContent() {
-  const { user, loading } = useAuth();
+  const { user, loading, isGuest } = useAuth();
 
   // Show loading for any auth state transition
   if (loading) {
@@ -32,7 +32,7 @@ function AppContent() {
     );
   }
 
-  if (!user) {
+  if (!user && !isGuest) {
     return (
       <Switch>
         <Route path="/auth/callback" component={AuthCallback} />

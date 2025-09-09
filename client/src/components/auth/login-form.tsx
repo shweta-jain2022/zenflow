@@ -9,9 +9,17 @@ import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
 
 export const LoginForm = () => {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, enterGuestMode } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleGuestMode = () => {
+    enterGuestMode();
+    toast({
+      title: 'Welcome, Guest!',
+      description: 'You can explore ZenFlow with limited features. Sign up for full access.',
+    });
+  };
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -180,6 +188,20 @@ export const LoginForm = () => {
                 </form>
               </TabsContent>
             </Tabs>
+            
+            <div className="mt-6 pt-6 border-t">
+              <div className="text-center text-sm text-muted-foreground mb-4">
+                Or explore without an account
+              </div>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleGuestMode}
+                data-testid="button-guest-mode"
+              >
+                Try as Guest
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
