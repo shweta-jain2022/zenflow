@@ -11,6 +11,7 @@ const navigation = [
   { name: 'Mood & Journal', href: '/mood', icon: Smile },
   { name: 'Progress', href: '/progress', icon: TrendingUp },
   { name: 'Integrations', href: '/integrations', icon: Zap },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export const Sidebar = () => {

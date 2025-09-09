@@ -1,12 +1,12 @@
 import { Link, useLocation } from 'wouter';
-import { LayoutDashboard, CheckSquare, Timer, Heart, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, Timer, Heart, TrendingUp, Settings } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Focus', href: '/focus', icon: Timer },
   { name: 'Mindful', href: '/mindfulness', icon: Heart },
-  { name: 'Progress', href: '/progress', icon: TrendingUp },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export const MobileNav = () => {
