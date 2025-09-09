@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
@@ -20,9 +21,26 @@ import ProgressPage from "@/pages/progress";
 import IntegrationsPage from "@/pages/integrations";
 import { AuthCallback } from "@/pages/auth-callback";
 import { GuestBanner } from "@/components/guest-banner";
+import { OnboardingModal } from "@/components/onboarding/onboarding-modal";
+import { Profile } from "@shared/schema";
 
 function AppContent() {
   const { user, loading, isGuest } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  
+  // Check if user has a profile for onboarding
+  const { data: profile, isLoading: profileLoading } = useQuery<Profile>({
+    queryKey: ['/api/profiles'],
+    enabled: !!user && !isGuest,
+  });
+  
+  // Show onboarding modal for new authenticated users without profile
+  const shouldShowOnboarding = user && !isGuest && !profileLoading && !profile && !showOnboarding;
+  
+  // Auto-show onboarding for new users
+  if (shouldShowOnboarding) {
+    setShowOnboarding(true);
+  }
 
   // Show loading for any auth state transition
   if (loading) {
@@ -66,6 +84,12 @@ function AppContent() {
       </div>
       
       <MobileNav />
+      
+      {/* Onboarding Modal */}
+      <OnboardingModal 
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+      />
     </div>
   );
 }
