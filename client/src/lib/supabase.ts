@@ -1,13 +1,26 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Get environment variables
-let supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const rawUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const rawKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Auto-fix if variables are swapped (URL should start with https://, key should be a long string)
-if (supabaseUrl.startsWith('eyJ') && supabaseAnonKey.startsWith('https://')) {
+// Determine correct assignment based on content patterns
+let supabaseUrl: string;
+let supabaseAnonKey: string;
+
+if (rawUrl.startsWith('https://') && rawKey.startsWith('eyJ')) {
+  // Correct order
+  supabaseUrl = rawUrl;
+  supabaseAnonKey = rawKey;
+} else if (rawKey.startsWith('https://') && rawUrl.startsWith('eyJ')) {
+  // Swapped - fix it
   console.log('Detected swapped Supabase environment variables, fixing...');
-  [supabaseUrl, supabaseAnonKey] = [supabaseAnonKey, supabaseUrl];
+  supabaseUrl = rawKey;
+  supabaseAnonKey = rawUrl;
+} else {
+  // Neither pattern matches clearly - use as provided
+  supabaseUrl = rawUrl;
+  supabaseAnonKey = rawKey;
 }
 
 // Validate URL format
