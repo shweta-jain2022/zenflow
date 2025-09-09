@@ -66,14 +66,6 @@ export const Sidebar = () => {
               </p>
               <p className="text-xs text-muted-foreground">Free Plan</p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => signOut()}
-              data-testid="button-logout"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </div>
