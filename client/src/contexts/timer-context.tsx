@@ -83,8 +83,8 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
 
   const updateConfig = (newConfig: TimerConfig) => {
     setConfig(newConfig);
-    // Reset timer with new config if not running
-    if (!isRunning) {
+    // Only reset timer if it's at the default state (not paused mid-session)
+    if (!isRunning && minutes === config.focusMinutes && seconds === 0) {
       resetTimer(mode);
     }
   };
@@ -123,9 +123,9 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
     };
   }, [isRunning]);
 
-  // Update timer when config changes and timer is not running
+  // Update timer when config changes - only if at default state
   useEffect(() => {
-    if (!isRunning) {
+    if (!isRunning && minutes === config.focusMinutes && seconds === 0) {
       switch (mode) {
         case 'focus':
           setMinutes(config.focusMinutes);
@@ -139,7 +139,7 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
       }
       setSeconds(0);
     }
-  }, [config, mode]); // Removed isRunning dependency to prevent reset on pause
+  }, [config, mode, isRunning, minutes, seconds]);
 
   const value: TimerContextValue = {
     minutes,
