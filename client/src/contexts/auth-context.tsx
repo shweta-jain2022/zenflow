@@ -88,14 +88,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (event === 'SIGNED_IN' && session) {
         setUser(session.user);
+        // Add small delay for first signin to ensure state propagates
+        setTimeout(() => setLoading(false), 100);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         clearAuthCache();
+        setLoading(false);
       } else if (event === 'TOKEN_REFRESHED' && session) {
         setUser(session.user);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

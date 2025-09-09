@@ -45,7 +45,7 @@ export const AuthCallback = () => {
           setStatus('success');
           setTimeout(() => {
             console.log('Redirecting to dashboard...');
-            setLocation('/dashboard');
+            setLocation('/');
           }, 1500);
           return;
         }
@@ -80,7 +80,7 @@ export const AuthCallback = () => {
             console.log('Session set successfully');
             setStatus('success');
             setTimeout(() => {
-              setLocation('/dashboard');
+              setLocation('/');
             }, 1500);
           }
         } else if (urlAccessToken && urlRefreshToken) {
@@ -97,7 +97,7 @@ export const AuthCallback = () => {
             console.log('Session set successfully');
             setStatus('success');
             setTimeout(() => {
-              setLocation('/dashboard');
+              setLocation('/');
             }, 1500);
           }
         } else {
