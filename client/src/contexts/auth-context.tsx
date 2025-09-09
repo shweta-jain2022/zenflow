@@ -27,9 +27,12 @@ const clearAuthCache = () => {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isGuest: boolean;
   signUp: (email: string, password: string, name: string) => Promise<{ error?: any }>;
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
+  enterGuestMode: () => void;
+  exitGuestMode: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -49,6 +52,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     if (!supabase) {
@@ -186,7 +190,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(null);
       return;
     }
+    setIsGuest(false);
     await supabase.auth.signOut();
+  };
+
+  const enterGuestMode = () => {
+    setIsGuest(true);
+    setUser(null);
+    setLoading(false);
+  };
+
+  const exitGuestMode = () => {
+    setIsGuest(false);
   };
 
   return (
@@ -194,9 +209,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       value={{
         user,
         loading,
+        isGuest,
         signUp,
         signIn,
         signOut,
+        enterGuestMode,
+        exitGuestMode,
       }}
     >
       {children}
