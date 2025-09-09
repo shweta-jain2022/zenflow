@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -38,22 +38,24 @@ export default function SettingsPage() {
   const form = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      workStartTime: profile?.workStartTime || '09:00',
-      workEndTime: profile?.workEndTime || '17:00',
-      breakFrequency: profile?.breakFrequency || '30',
-      waterReminder: profile?.waterReminder ?? true,
+      workStartTime: '09:00',
+      workEndTime: '17:00',
+      breakFrequency: '30',
+      waterReminder: true,
     },
   });
 
   // Update form when profile data loads
-  if (profile && !isLoading) {
-    form.reset({
-      workStartTime: profile.workStartTime || '09:00',
-      workEndTime: profile.workEndTime || '17:00',
-      breakFrequency: profile.breakFrequency || '30',
-      waterReminder: profile.waterReminder ?? true,
-    });
-  }
+  useEffect(() => {
+    if (profile && !isLoading) {
+      form.reset({
+        workStartTime: profile.workStartTime || '09:00',
+        workEndTime: profile.workEndTime || '17:00',
+        breakFrequency: profile.breakFrequency || '30',
+        waterReminder: profile.waterReminder ?? true,
+      });
+    }
+  }, [profile, isLoading, form]);
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: SettingsForm) => {
