@@ -84,44 +84,13 @@ export const AuthCallback = () => {
               setLocation('/dashboard');
             }, 1500);
           }
-        } else if (type === 'signup') {
-          // For email confirmation, we might not get tokens immediately
-          console.log('Email confirmation detected, processing...');
-          
-          // Try to exchange the confirmation for a session
-          try {
-            const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.search);
-            if (data.session) {
-              console.log('Email confirmed and session created');
-              setStatus('success');
-              setTimeout(() => {
-                setLocation('/dashboard');
-              }, 1500);
-            } else if (error) {
-              console.log('Email confirmed but no session:', error.message);
-              setStatus('success');
-              setTimeout(() => {
-                setLocation('/auth/signin');
-              }, 2000);
-            } else {
-              console.log('Email confirmed, redirecting to sign in');
-              setStatus('success');
-              setTimeout(() => {
-                setLocation('/auth/signin');
-              }, 2000);
-            }
-          } catch (error) {
-            console.log('Error processing confirmation, but email should be verified');
-            setStatus('success');
-            setTimeout(() => {
-              setLocation('/auth/signin');
-            }, 2000);
-          }
         } else {
-          console.log('No tokens found in URL, redirecting to sign in');
+          // Handle confirmation without immediate session
+          console.log('Email confirmation detected, account should be verified');
+          setStatus('success');
           setTimeout(() => {
             setLocation('/auth/signin');
-          }, 2000);
+          }, 1500);
         }
       } catch (error) {
         console.error('Unexpected error in auth callback:', error);
