@@ -1,14 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle, Clock, Heart, Smile, Plus, BarChart3 } from 'lucide-react';
+import { CheckCircle, Clock, Heart, Smile, Plus, BarChart3, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Task, FocusSession, Meditation, Mood } from '@shared/schema';
 import { useAuth } from '@/contexts/auth-context';
+import { useGlobalTimer } from '@/contexts/timer-context';
 import { Link } from 'wouter';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const timer = useGlobalTimer();
 
   const { data: tasks = [], isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ['/api/tasks'],
@@ -225,13 +227,38 @@ export default function DashboardPage() {
             <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium text-foreground">Pomodoro Timer</h4>
-                <span className="text-2xl font-mono text-primary">25:00</span>
+                <span className="text-2xl font-mono text-primary" data-testid="dashboard-timer-display">
+                  {timer.formatTime}
+                </span>
               </div>
-              <Link href="/focus">
-                <Button className="w-full" data-testid="button-start-focus-session">
-                  Start Focus Session
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-muted-foreground">
+                  {timer.isRunning ? (timer.mode === 'focus' ? 'Focus session' : 'Break time') : 'Ready to start'}
+                </span>
+                <span className="text-xs text-muted-foreground capitalize">
+                  {timer.mode.replace('_', ' ')}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={timer.isRunning ? timer.pauseTimer : timer.startTimer}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  data-testid={timer.isRunning ? "button-pause-timer" : "button-start-timer"}
+                >
+                  {timer.isRunning ? (
+                    <><Pause className="w-4 h-4 mr-2" />Pause</>
+                  ) : (
+                    <><Play className="w-4 h-4 mr-2" />Start</>
+                  )}
                 </Button>
-              </Link>
+                <Link href="/focus" className="flex-1">
+                  <Button className="w-full" size="sm" data-testid="button-focus-page">
+                    Focus Page
+                  </Button>
+                </Link>
+              </div>
             </div>
 
             <div className="p-4 bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-lg border border-secondary/20">

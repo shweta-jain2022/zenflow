@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { FocusProvider } from "@/contexts/focus-context";
+import { TimerProvider } from "@/contexts/timer-context";
 import { ProtectedRoute } from "@/components/protected-route";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -122,12 +123,14 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <FocusProvider>
-            <TooltipProvider>
-              <Toaster />
-              <AppContent />
-            </TooltipProvider>
-          </FocusProvider>
+          <TimerProvider>
+            <FocusProvider>
+              <TooltipProvider>
+                <Toaster />
+                <AppContent />
+              </TooltipProvider>
+            </FocusProvider>
+          </TimerProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

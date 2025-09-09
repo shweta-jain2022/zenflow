@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { useTimer } from '@/hooks/use-timer';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/contexts/auth-context';
 import { useFocus } from '@/contexts/focus-context';
+import { useGlobalTimer } from '@/contexts/timer-context';
 import { useToast } from '@/hooks/use-toast';
 
 interface TimerSettings {
@@ -23,6 +23,7 @@ export const FocusTimer = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { setFocusModeActive } = useFocus();
+  const timer = useGlobalTimer();
   
   const [settings, setSettings] = useState<TimerSettings>({
     focusMinutes: 25,
@@ -31,11 +32,14 @@ export const FocusTimer = () => {
     soundEnabled: true,
   });
 
-  const timer = useTimer({
-    focusMinutes: settings.focusMinutes,
-    shortBreakMinutes: settings.shortBreakMinutes,
-    longBreakMinutes: settings.longBreakMinutes,
-  });
+  // Update global timer config when settings change
+  useEffect(() => {
+    timer.updateConfig({
+      focusMinutes: settings.focusMinutes,
+      shortBreakMinutes: settings.shortBreakMinutes,
+      longBreakMinutes: settings.longBreakMinutes,
+    });
+  }, [settings, timer]);
 
   const saveSessionMutation = useMutation({
     mutationFn: async (data: { durationMinutes: number; sessionType: string }) => {
