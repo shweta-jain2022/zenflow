@@ -143,19 +143,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Clear cache before attempting sign in to avoid stale auth state
     clearAuthCache();
     
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    console.log('Sign in result:', { user: data.user?.id, error: error?.message });
-    
-    // If there's an auth-related error, clear cache again
-    if (error && (error.message?.includes('Email not confirmed') || error.message?.includes('Invalid'))) {
-      clearAuthCache();
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      console.log('Sign in result:', { 
+        user: data.user?.id, 
+        error: error?.message,
+        session: !!data.session 
+      });
+      
+      // If there's an auth-related error, clear cache again
+      if (error && (error.message?.includes('Email not confirmed') || error.message?.includes('Invalid'))) {
+        clearAuthCache();
+      }
+      
+      return { error };
+    } catch (networkError) {
+      console.error('Network error during sign in:', networkError);
+      return { error: { message: 'Connection failed. Please check your internet connection and try again.' } };
     }
-    
-    return { error };
   };
 
   const signOut = async () => {
