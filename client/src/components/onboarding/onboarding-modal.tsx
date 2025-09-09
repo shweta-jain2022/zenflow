@@ -85,6 +85,7 @@ export const OnboardingModal = ({ isOpen, onClose }: OnboardingModalProps) => {
   const breakFrequencyOptions = [
     { value: '20', label: '20 minutes' },
     { value: '30', label: '30 minutes' },
+    { value: '45', label: '45 minutes' },
     { value: '60', label: '60 minutes' },
   ];
 
