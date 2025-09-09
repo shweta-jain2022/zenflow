@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/contexts/auth-context';
 import { useFocus } from '@/contexts/focus-context';
 import { useGlobalTimer } from '@/contexts/timer-context';
@@ -47,6 +47,10 @@ export const FocusTimer = () => {
         ...data,
         userId: user?.id,
       });
+    },
+    onSuccess: () => {
+      // Invalidate focus sessions cache to update dashboard
+      queryClient.invalidateQueries({ queryKey: ['/api/focus-sessions'] });
     },
   });
 
