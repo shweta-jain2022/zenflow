@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Profile } from '@shared/schema';
 import { useAuth } from '@/contexts/auth-context';
+import { useFocus } from '@/contexts/focus-context';
 
 const BREAK_ACTIVITIES = {
   '2': [
@@ -35,6 +36,7 @@ const BREAK_ACTIVITIES = {
 
 export const BreakReminder = () => {
   const { user, isGuest } = useAuth();
+  const { isFocusModeActive } = useFocus();
   const [showReminder, setShowReminder] = useState(false);
   const [currentActivity, setCurrentActivity] = useState('');
 
@@ -103,7 +105,7 @@ export const BreakReminder = () => {
       // If break is in the future
       if (timeUntilBreak > 0) {
         const timeoutId = setTimeout(() => {
-          if (isInWorkHours()) {
+          if (isInWorkHours() && !isFocusModeActive) {
             setCurrentActivity(getRandomActivity(profile.breakDuration || '5'));
             setShowReminder(true);
           }
@@ -116,7 +118,7 @@ export const BreakReminder = () => {
         // Schedule for next interval
         const frequencyMs = parseInt(profile.breakFrequency) * 60 * 1000;
         const timeoutId = setTimeout(() => {
-          if (isInWorkHours()) {
+          if (isInWorkHours() && !isFocusModeActive) {
             setCurrentActivity(getRandomActivity(profile.breakDuration || '5'));
             setShowReminder(true);
           }
@@ -129,7 +131,7 @@ export const BreakReminder = () => {
 
     const cleanup = scheduleNextBreak();
     return cleanup;
-  }, [profile, user, isGuest]);
+  }, [profile, user, isGuest, isFocusModeActive]);
 
   // Don't render if not applicable
   if (isGuest || !user || !showReminder || !profile?.breakFrequency) {

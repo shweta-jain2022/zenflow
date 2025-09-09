@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { useTimer } from '@/hooks/use-timer';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/contexts/auth-context';
+import { useFocus } from '@/contexts/focus-context';
 import { useToast } from '@/hooks/use-toast';
 
 interface TimerSettings {
@@ -21,6 +22,7 @@ interface TimerSettings {
 export const FocusTimer = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { setFocusModeActive } = useFocus();
   
   const [settings, setSettings] = useState<TimerSettings>({
     focusMinutes: 25,
@@ -105,6 +107,12 @@ export const FocusTimer = () => {
       }
     });
   }, [timer, settings, saveSessionMutation, toast]);
+
+  // Track focus mode status for break reminders
+  useEffect(() => {
+    const isInFocusMode = timer.mode === 'focus' && timer.isRunning;
+    setFocusModeActive(isInFocusMode);
+  }, [timer.mode, timer.isRunning, setFocusModeActive]);
 
   const getModeLabel = () => {
     switch (timer.mode) {
