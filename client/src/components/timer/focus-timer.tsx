@@ -32,14 +32,18 @@ export const FocusTimer = () => {
     soundEnabled: true,
   });
 
-  // Update global timer config when settings change - only on initial load
+  // Update global timer config when settings change
   useEffect(() => {
     timer.updateConfig({
       focusMinutes: settings.focusMinutes,
       shortBreakMinutes: settings.shortBreakMinutes,
       longBreakMinutes: settings.longBreakMinutes,
     });
-  }, []); // Only run on mount to avoid resetting timer
+    // Reset timer to new duration if not currently running
+    if (!timer.isRunning) {
+      timer.resetTimer(timer.mode);
+    }
+  }, [settings.focusMinutes, settings.shortBreakMinutes, settings.longBreakMinutes, timer]);
 
   const saveSessionMutation = useMutation({
     mutationFn: async (data: { durationMinutes: number; sessionType: string }) => {
