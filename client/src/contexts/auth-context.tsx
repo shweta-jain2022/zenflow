@@ -56,17 +56,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     if (!supabase) {
-      // Mock user for development when Supabase is not configured
-      const mockUser = {
-        id: '00000000-0000-0000-0000-000000000000',
-        email: 'demo@example.com',
-        user_metadata: { name: 'Demo User' },
-        app_metadata: {},
-        aud: 'authenticated',
-        created_at: new Date().toISOString(),
-      } as User;
-      
-      setUser(mockUser);
+      console.log('Supabase not configured - auth functionality limited');
       setLoading(false);
       return;
     }

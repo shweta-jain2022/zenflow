@@ -28,29 +28,30 @@ import { Profile } from "@shared/schema";
 function AppContent() {
   const { user, loading, isGuest } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
-  const [hasInitiallyChecked, setHasInitiallyChecked] = useState(false);
   
   // Check if user has a profile for onboarding
-  const { data: profile, isLoading: profileLoading } = useQuery<Profile>({
+  const { data: profile, isLoading: profileLoading, error } = useQuery<Profile>({
     queryKey: ['/api/profiles'],
     enabled: !!user && !isGuest,
+    staleTime: 0, // Always fetch fresh data
+    refetchOnMount: true,
   });
   
   // Auto-show onboarding for new users without profiles
   useEffect(() => {
-    if (user && !isGuest && !profileLoading && !hasInitiallyChecked) {
-      setHasInitiallyChecked(true);
-      // Show onboarding ONLY if no profile exists (ignore dismiss state for true new users)
-      setShowOnboarding(!profile);
+    // Only show onboarding if user is authenticated, not guest, profile has loaded, and profile doesn't exist
+    if (user && !isGuest && !profileLoading) {
+      // Check multiple ways to detect if profile exists
+      const hasProfile = profile && (profile.userId || profile.workStartTime || profile.breakFrequency);
+      setShowOnboarding(!hasProfile);
+      
     }
-  }, [user, isGuest, profileLoading, profile, hasInitiallyChecked]);
+  }, [user, isGuest, profileLoading, profile]);
   
   // Handle closing onboarding
   const handleCloseOnboarding = () => {
     setShowOnboarding(false);
-    setOnboardingDismissed(true); // Mark as dismissed for this session
-    // Invalidate profile query to refresh data after onboarding
+    // Refresh profile data after onboarding
     queryClient.invalidateQueries({ queryKey: ['/api/profiles'] });
   };
 
