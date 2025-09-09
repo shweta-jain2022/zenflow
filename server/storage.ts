@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { eq, and, desc, gte, sql } from "drizzle-orm";
+import { eq, and, desc, gte, lt, sql } from "drizzle-orm";
 import { 
   tasks, 
   moods, 
@@ -258,6 +258,11 @@ export class DatabaseStorage implements IStorage {
     focusTimeHours: number;
     meditationTimeHours: number;
     averageMood: number;
+    streaks: {
+      tasks: number;
+      meditation: number;
+      journaling: number;
+    };
     weeklyData: Array<{
       day: string;
       tasks: number;
@@ -311,6 +316,9 @@ export class DatabaseStorage implements IStorage {
       ? moodValues.reduce((sum, val) => sum + val, 0) / moodValues.length 
       : 3;
 
+    // Calculate streaks
+    const streaks = await this.calculateStreaks(userId);
+
     // Generate weekly data (simplified version)
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const weeklyData = days.map(day => ({
@@ -326,8 +334,108 @@ export class DatabaseStorage implements IStorage {
       focusTimeHours,
       meditationTimeHours,
       averageMood,
+      streaks,
       weeklyData,
     };
+  }
+
+  // Helper function to calculate streaks
+  private async calculateStreaks(userId: string): Promise<{
+    tasks: number;
+    meditation: number;
+    journaling: number;
+  }> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+
+    // Calculate task streak
+    const taskStreak = await this.calculateConsecutiveDays(
+      userId,
+      async (date: Date) => {
+        const nextDay = new Date(date);
+        nextDay.setDate(nextDay.getDate() + 1);
+        
+        const result = await db.select({ count: sql<number>`count(*)` })
+          .from(tasks)
+          .where(and(
+            eq(tasks.userId, userId),
+            eq(tasks.completed, true),
+            gte(tasks.createdAt, date),
+            lt(tasks.createdAt, nextDay)
+          ));
+        return (result[0]?.count || 0) > 0;
+      }
+    );
+
+    // Calculate meditation streak
+    const meditationStreak = await this.calculateConsecutiveDays(
+      userId,
+      async (date: Date) => {
+        const nextDay = new Date(date);
+        nextDay.setDate(nextDay.getDate() + 1);
+        
+        const result = await db.select({ count: sql<number>`count(*)` })
+          .from(meditations)
+          .where(and(
+            eq(meditations.userId, userId),
+            gte(meditations.createdAt, date),
+            lt(meditations.createdAt, nextDay)
+          ));
+        return (result[0]?.count || 0) > 0;
+      }
+    );
+
+    // Calculate journaling streak
+    const journalingStreak = await this.calculateConsecutiveDays(
+      userId,
+      async (date: Date) => {
+        const nextDay = new Date(date);
+        nextDay.setDate(nextDay.getDate() + 1);
+        
+        const result = await db.select({ count: sql<number>`count(*)` })
+          .from(journals)
+          .where(and(
+            eq(journals.userId, userId),
+            gte(journals.createdAt, date),
+            lt(journals.createdAt, nextDay)
+          ));
+        return (result[0]?.count || 0) > 0;
+      }
+    );
+
+    return {
+      tasks: taskStreak,
+      meditation: meditationStreak,
+      journaling: journalingStreak,
+    };
+  }
+
+  // Helper function to calculate consecutive days of activity
+  private async calculateConsecutiveDays(
+    userId: string,
+    hasActivityOnDate: (date: Date) => Promise<boolean>
+  ): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let streak = 0;
+    let currentDate = new Date(today);
+    
+    // Check up to 365 days back (reasonable limit)
+    for (let i = 0; i < 365; i++) {
+      const hasActivity = await hasActivityOnDate(currentDate);
+      
+      if (hasActivity) {
+        streak++;
+        // Move to previous day
+        currentDate.setDate(currentDate.getDate() - 1);
+      } else {
+        // Streak broken
+        break;
+      }
+    }
+    
+    return streak;
   }
 }
 

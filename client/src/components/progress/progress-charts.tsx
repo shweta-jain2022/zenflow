@@ -9,6 +9,11 @@ interface ProgressStats {
   focusTimeHours: number;
   meditationTimeHours: number;
   averageMood: number;
+  streaks: {
+    tasks: number;
+    meditation: number;
+    journaling: number;
+  };
   weeklyData: Array<{
     day: string;
     tasks: number;
@@ -167,22 +172,34 @@ export const ProgressCharts = () => {
             <div className="text-center p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20">
               <div className="text-3xl mb-2">🔥</div>
               <div className="font-semibold text-foreground mb-1">Task Streak</div>
-              <div className="text-2xl font-bold text-primary mb-1" data-testid="streak-tasks">7 days</div>
-              <div className="text-xs text-muted-foreground">Keep it up!</div>
+              <div className="text-2xl font-bold text-primary mb-1" data-testid="streak-tasks">
+                {stats.streaks?.tasks || 0} {(stats.streaks?.tasks || 0) === 1 ? 'day' : 'days'}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {(stats.streaks?.tasks || 0) === 0 ? 'Start today!' : (stats.streaks?.tasks || 0) >= 7 ? 'Amazing!' : 'Keep it up!'}
+              </div>
             </div>
 
             <div className="text-center p-4 bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-lg border border-secondary/20">
               <div className="text-3xl mb-2">🧘</div>
               <div className="font-semibold text-foreground mb-1">Meditation</div>
-              <div className="text-2xl font-bold text-secondary mb-1" data-testid="streak-meditation">12 days</div>
-              <div className="text-xs text-muted-foreground">Amazing!</div>
+              <div className="text-2xl font-bold text-secondary mb-1" data-testid="streak-meditation">
+                {stats.streaks?.meditation || 0} {(stats.streaks?.meditation || 0) === 1 ? 'day' : 'days'}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {(stats.streaks?.meditation || 0) === 0 ? 'Begin your journey!' : (stats.streaks?.meditation || 0) >= 10 ? 'Incredible!' : 'Great progress!'}
+              </div>
             </div>
 
             <div className="text-center p-4 bg-gradient-to-br from-accent/10 to-accent/5 rounded-lg border border-accent/20">
               <div className="text-3xl mb-2">📝</div>
               <div className="font-semibold text-foreground mb-1">Journaling</div>
-              <div className="text-2xl font-bold text-accent mb-1" data-testid="streak-journal">5 days</div>
-              <div className="text-xs text-muted-foreground">Great start!</div>
+              <div className="text-2xl font-bold text-accent mb-1" data-testid="streak-journal">
+                {stats.streaks?.journaling || 0} {(stats.streaks?.journaling || 0) === 1 ? 'day' : 'days'}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {(stats.streaks?.journaling || 0) === 0 ? 'Start writing!' : (stats.streaks?.journaling || 0) >= 5 ? 'Wonderful!' : 'Great start!'}
+              </div>
             </div>
           </div>
 
