@@ -64,14 +64,22 @@ export const ProgressCharts = () => {
     return `${change >= 0 ? '+' : ''}${change.toFixed(0)}%`;
   };
 
-  // Process mood data to get latest mood per day for the last 7 days
+  // Process mood data to get latest mood per day starting from Monday
   const getMoodTrends = () => {
     const today = new Date();
-    const last7Days = [];
     
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
+    // Find the most recent Monday (start of this week)
+    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // If Sunday, go back 6 days to Monday
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - daysFromMonday);
+    monday.setHours(0, 0, 0, 0);
+    
+    const weekDays = [];
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
       date.setHours(0, 0, 0, 0);
       
       const nextDay = new Date(date);
@@ -87,7 +95,7 @@ export const ProgressCharts = () => {
         ? dayMoods.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
         : null;
       
-      last7Days.push({
+      weekDays.push({
         date: date,
         dayName: date.toLocaleDateString('en-US', { weekday: 'short' }),
         dayNumber: date.getDate(),
@@ -96,7 +104,7 @@ export const ProgressCharts = () => {
       });
     }
     
-    return last7Days;
+    return weekDays;
   };
 
   const moodTrends = getMoodTrends();
