@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Clock, Heart, Smile, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
+import { Mood } from '@shared/schema';
 
 interface ProgressStats {
   tasksCompleted: number;
@@ -23,11 +24,24 @@ interface ProgressStats {
   }>;
 }
 
+const moodIcons = {
+  'great': '😄',
+  'good': '😊',
+  'okay': '😐',
+  'stressed': '😰',
+  'sad': '😢',
+};
+
 export const ProgressCharts = () => {
   const { user } = useAuth();
 
   const { data: stats, isLoading } = useQuery<ProgressStats>({
     queryKey: ['/api/progress/stats'],
+    enabled: !!user,
+  });
+
+  const { data: moods = [] } = useQuery<Mood[]>({
+    queryKey: ['/api/moods'],
     enabled: !!user,
   });
 
@@ -48,6 +62,53 @@ export const ProgressCharts = () => {
     if (previous === 0) return '+100%';
     const change = ((current - previous) / previous) * 100;
     return `${change >= 0 ? '+' : ''}${change.toFixed(0)}%`;
+  };
+
+  // Process mood data to get latest mood per day for the last 7 days
+  const getMoodTrends = () => {
+    const today = new Date();
+    const last7Days = [];
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+      
+      const nextDay = new Date(date);
+      nextDay.setDate(nextDay.getDate() + 1);
+      
+      // Find the latest mood for this day
+      const dayMoods = moods.filter(mood => {
+        const moodDate = new Date(mood.createdAt);
+        return moodDate >= date && moodDate < nextDay;
+      });
+      
+      const latestMood = dayMoods.length > 0 
+        ? dayMoods.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+        : null;
+      
+      last7Days.push({
+        date: date,
+        dayName: date.toLocaleDateString('en-US', { weekday: 'short' }),
+        dayNumber: date.getDate(),
+        mood: latestMood?.mood || null,
+        icon: latestMood ? moodIcons[latestMood.mood as keyof typeof moodIcons] : '—',
+      });
+    }
+    
+    return last7Days;
+  };
+
+  const moodTrends = getMoodTrends();
+  const startDate = moodTrends[0]?.date;
+  const endDate = moodTrends[moodTrends.length - 1]?.date;
+  
+  const formatDateRange = () => {
+    if (!startDate || !endDate) return '';
+    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    const start = startDate.toLocaleDateString('en-US', options);
+    const end = endDate.toLocaleDateString('en-US', options);
+    return `${start} - ${end}`;
   };
 
   return (
@@ -117,25 +178,28 @@ export const ProgressCharts = () => {
         {/* Mood Trends */}
         <Card>
           <CardHeader>
-            <CardTitle>Mood Trends</CardTitle>
+            <CardTitle className="text-center">
+              Mood Trends
+              <div className="text-sm font-normal text-muted-foreground mt-1">
+                {formatDateRange()}
+              </div>
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={stats.weeklyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day" />
-                  <YAxis domain={[1, 5]} />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="mood"
-                    stroke="hsl(var(--accent))"
-                    strokeWidth={2}
-                    name="Mood"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="grid grid-cols-7 gap-4 py-4">
+              {moodTrends.map((day, index) => (
+                <div key={index} className="text-center space-y-2">
+                  <div className="text-xs text-muted-foreground font-medium">
+                    {day.dayName}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {day.dayNumber}
+                  </div>
+                  <div className="text-3xl h-12 flex items-center justify-center">
+                    {day.icon}
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
