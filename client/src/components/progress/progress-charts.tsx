@@ -113,28 +113,7 @@ export const ProgressCharts = () => {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Activity Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.weeklyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="tasks" fill="hsl(var(--primary))" name="Tasks" />
-                  <Bar dataKey="focus" fill="hsl(var(--secondary))" name="Focus (hrs)" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
+      <div className="grid grid-cols-1 gap-6">
         {/* Mood Trends */}
         <Card>
           <CardHeader>
