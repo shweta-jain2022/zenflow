@@ -79,6 +79,8 @@ export const profiles = pgTable("profiles", {
   breakFrequency: text("break_frequency"), // Keep as text to match existing
   breakDuration: text("break_duration").default("5"), // Duration of breaks in minutes
   waterReminder: boolean("water_reminder").default(false),
+  focusMode: boolean("focus_mode").default(false).notNull(),
+  hideDndOverlay: boolean("hide_dnd_overlay").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`).notNull(),
 });
