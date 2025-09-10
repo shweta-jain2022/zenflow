@@ -57,12 +57,12 @@ function AppContent() {
 
   // Show DND overlay when focus mode is turned on (unless hidden)
   useEffect(() => {
-    if (profile && profile.focusMode && !profile.hideDndOverlay && !showDndOverlay) {
+    if (profile && profile.focusMode && !profile.hideDndOverlay) {
       setShowDndOverlay(true);
     } else if (profile && (!profile.focusMode || profile.hideDndOverlay)) {
       setShowDndOverlay(false);
     }
-  }, [profile?.focusMode, profile?.hideDndOverlay, showDndOverlay]);
+  }, [profile?.focusMode, profile?.hideDndOverlay]);
   
   // Handle closing onboarding
   const handleCloseOnboarding = () => {
