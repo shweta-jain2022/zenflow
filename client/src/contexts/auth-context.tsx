@@ -197,18 +197,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('Sign out error:', error);
+        // If the error is AuthSessionMissingError, it means user is already signed out
+        if (error.name === 'AuthSessionMissingError') {
+          console.log('User was already signed out, clearing local state');
+        }
       } else {
         console.log('Sign out successful');
-        // Force clear user state immediately
-        setUser(null);
-        clearAuthCache();
       }
     } catch (err) {
       console.error('Sign out failed:', err);
-      // Force clear user state even if error
-      setUser(null);
-      clearAuthCache();
     }
+    
+    // Always clear user state and cache regardless of Supabase response
+    // This ensures the UI reflects the signed out state
+    console.log('Clearing user state and cache');
+    setUser(null);
+    clearAuthCache();
+    
+    // Force reload to ensure clean state
+    window.location.href = '/';
   };
 
   const enterGuestMode = () => {
