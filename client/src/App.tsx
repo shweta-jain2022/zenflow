@@ -45,14 +45,13 @@ function AppContent() {
     refetchOnWindowFocus: true,
   });
   
-  // Auto-show onboarding for new users without profiles
+  // Auto-show onboarding for new users without completed onboarding
   useEffect(() => {
-    // Only show onboarding if user is authenticated, not guest, profile has loaded, and profile doesn't exist
+    // Only show onboarding if user is authenticated, not guest, profile has loaded, and onboarding not completed
     if (user && !isGuest && !profileLoading) {
-      // Check multiple ways to detect if profile exists
-      const hasProfile = profile && (profile.userId || profile.workStartTime || profile.breakFrequency);
-      setShowOnboarding(!hasProfile);
-      
+      // Show onboarding if no profile exists OR onboarding hasn't been completed
+      const needsOnboarding = !profile || !profile.onboardingCompleted;
+      setShowOnboarding(needsOnboarding);
     }
   }, [user, isGuest, profileLoading, profile]);
 

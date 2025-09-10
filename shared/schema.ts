@@ -81,6 +81,7 @@ export const profiles = pgTable("profiles", {
   waterReminder: boolean("water_reminder").default(false),
   focusMode: boolean("focus_mode").default(false).notNull(),
   hideDndOverlay: boolean("hide_dnd_overlay").default(false).notNull(),
+  onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`).notNull(),
 });

@@ -74,6 +74,7 @@ export const OnboardingModal = ({ isOpen, onClose }: OnboardingModalProps) => {
         breakFrequency: data.breakFrequency,
         breakDuration: data.breakDuration,
         waterReminder: data.waterReminder,
+        onboardingCompleted: true,
       });
     },
     onSuccess: () => {
@@ -97,12 +98,25 @@ export const OnboardingModal = ({ isOpen, onClose }: OnboardingModalProps) => {
     saveSettingsMutation.mutate(data);
   };
 
+  const skipOnboardingMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('POST', '/api/profiles', {
+        userId: user?.id,
+        onboardingCompleted: true,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/profiles'] });
+      toast({
+        title: 'Welcome to ZenFlow!',
+        description: 'You can update your preferences anytime in Settings.',
+      });
+      onClose();
+    },
+  });
+
   const handleSkip = () => {
-    toast({
-      title: 'Welcome to ZenFlow!',
-      description: 'You can update your preferences anytime in Settings.',
-    });
-    onClose();
+    skipOnboardingMutation.mutate();
   };
 
   const breakFrequencyOptions = [
