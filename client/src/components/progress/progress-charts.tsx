@@ -127,7 +127,7 @@ export const ProgressCharts = () => {
       </div>
 
       {/* Weekly Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-6 text-center">
             <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3">
@@ -167,18 +167,6 @@ export const ProgressCharts = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <Smile className="w-6 h-6 text-primary" />
-            </div>
-            <div className="text-2xl font-bold text-foreground mb-1" data-testid="stat-avg-mood">
-              {stats.averageMood.toFixed(1)}
-            </div>
-            <div className="text-sm text-muted-foreground">Avg Mood</div>
-            <div className="text-xs text-accent mt-1">+0.3 from last week</div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Charts */}
