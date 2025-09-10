@@ -60,6 +60,7 @@ export const MeditationList = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/meditations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/progress/stats'] });
     },
   });
 

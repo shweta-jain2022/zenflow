@@ -32,6 +32,7 @@ export const TaskList = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/progress/stats'] });
     },
   });
 
@@ -41,6 +42,7 @@ export const TaskList = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/progress/stats'] });
     },
   });
 

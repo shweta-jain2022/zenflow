@@ -47,6 +47,7 @@ export const TaskForm = ({ task, onClose }: TaskFormProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/progress/stats'] });
       toast({
         title: 'Task created',
         description: 'Your task has been created successfully.',
@@ -65,6 +66,7 @@ export const TaskForm = ({ task, onClose }: TaskFormProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/progress/stats'] });
       toast({
         title: 'Task updated',
         description: 'Your task has been updated successfully.',
