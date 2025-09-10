@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,6 +14,13 @@ interface DndOverlayProps {
 export const DndOverlay = ({ isVisible, onClose }: DndOverlayProps) => {
   const { user } = useAuth();
   const [doNotShowAgain, setDoNotShowAgain] = useState(false);
+
+  // Reset checkbox when overlay becomes visible
+  useEffect(() => {
+    if (isVisible) {
+      setDoNotShowAgain(false);
+    }
+  }, [isVisible]);
 
   const updateSettingsMutation = useMutation({
     mutationFn: async () => {
