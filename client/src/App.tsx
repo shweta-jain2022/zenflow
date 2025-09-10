@@ -28,11 +28,13 @@ import { OnboardingModal } from "@/components/onboarding/onboarding-modal";
 import { WaterReminder } from "@/components/reminders/water-reminder";
 import { BreakReminder } from "@/components/reminders/break-reminder";
 import { EndOfDayReminder } from "@/components/reminders/end-of-day-reminder";
+import { DndOverlay } from "@/components/overlays/dnd-overlay";
 import { Profile } from "@shared/schema";
 
 function AppContent() {
   const { user, loading, isGuest } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showDndOverlay, setShowDndOverlay] = useState(false);
   
   // Check if user has a profile for onboarding
   const { data: profile, isLoading: profileLoading, error } = useQuery<Profile>({
@@ -52,6 +54,15 @@ function AppContent() {
       
     }
   }, [user, isGuest, profileLoading, profile]);
+
+  // Show DND overlay when focus mode is turned on (unless hidden)
+  useEffect(() => {
+    if (profile && profile.focusMode && !profile.hideDndOverlay && !showDndOverlay) {
+      setShowDndOverlay(true);
+    } else if (profile && (!profile.focusMode || profile.hideDndOverlay)) {
+      setShowDndOverlay(false);
+    }
+  }, [profile?.focusMode, profile?.hideDndOverlay, showDndOverlay]);
   
   // Handle closing onboarding
   const handleCloseOnboarding = () => {
@@ -118,6 +129,12 @@ function AppContent() {
       
       {/* End of Day Reminder */}
       <EndOfDayReminder />
+      
+      {/* Do Not Disturb Overlay */}
+      <DndOverlay 
+        isVisible={showDndOverlay}
+        onClose={() => setShowDndOverlay(false)}
+      />
     </div>
   );
 }
