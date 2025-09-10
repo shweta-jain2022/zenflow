@@ -192,7 +192,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return;
     }
     setIsGuest(false);
-    await supabase.auth.signOut();
+    console.log('Signing out user...');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+      } else {
+        console.log('Sign out successful');
+        // Force clear user state immediately
+        setUser(null);
+        clearAuthCache();
+      }
+    } catch (err) {
+      console.error('Sign out failed:', err);
+      // Force clear user state even if error
+      setUser(null);
+      clearAuthCache();
+    }
   };
 
   const enterGuestMode = () => {
