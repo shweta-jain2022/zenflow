@@ -68,7 +68,7 @@ export const WaterReminder = () => {
 
   // Main reminder logic
   useEffect(() => {
-    if (!profile?.waterReminder || isGuest || !user) return;
+    if (!profile?.waterReminder || profile?.focusMode || isGuest || !user) return;
 
     const scheduleNextReminder = () => {
       const nextReminderTime = getNextReminderTime();
@@ -108,7 +108,7 @@ export const WaterReminder = () => {
   }, [profile, user, isGuest]);
 
   // Don't render if reminder is disabled or not applicable
-  if (!profile?.waterReminder || isGuest || !user || !showReminder) {
+  if (!profile?.waterReminder || profile?.focusMode || isGuest || !user || !showReminder) {
     return null;
   }
 

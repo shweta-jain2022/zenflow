@@ -108,7 +108,7 @@ export const BreakReminder = () => {
 
   // Main break reminder logic
   useEffect(() => {
-    if (!profile?.breakFrequency || !profile?.breakDuration || isGuest || !user) return;
+    if (!profile?.breakFrequency || !profile?.breakDuration || profile?.focusMode || isGuest || !user) return;
 
     const scheduleNextBreak = () => {
       const nextBreakTime = getNextBreakTime();
