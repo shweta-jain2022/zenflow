@@ -31,6 +31,7 @@ export const JournalEntry = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/journals'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/progress/stats'] });
       toast({
         title: 'Journal entry saved',
         description: 'Your reflection has been saved successfully.',
