@@ -37,11 +37,12 @@ function AppContent() {
   const [showDndOverlay, setShowDndOverlay] = useState(false);
   
   // Check if user has a profile for onboarding
-  const { data: profile, isLoading: profileLoading, error } = useQuery<Profile>({
+  const { data: profile, isLoading: profileLoading, error, refetch } = useQuery<Profile>({
     queryKey: ['/api/profiles'],
     enabled: !!user && !isGuest,
     staleTime: 0, // Always fetch fresh data
     refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
   
   // Auto-show onboarding for new users without profiles

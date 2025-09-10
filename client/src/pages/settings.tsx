@@ -23,7 +23,6 @@ const settingsSchema = z.object({
   breakDuration: z.string().default('5'),
   waterReminder: z.boolean().default(true),
   focusMode: z.boolean().default(false),
-  hideDndOverlay: z.boolean().default(false),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -47,7 +46,6 @@ export default function SettingsPage() {
       breakDuration: '5',
       waterReminder: true,
       focusMode: false,
-      hideDndOverlay: false,
     },
   });
 
@@ -61,7 +59,6 @@ export default function SettingsPage() {
         breakDuration: profile.breakDuration || '5',
         waterReminder: profile.waterReminder ?? true,
         focusMode: profile.focusMode ?? false,
-        hideDndOverlay: profile.hideDndOverlay ?? false,
       });
     }
   }, [profile, isLoading, form]);
@@ -76,7 +73,6 @@ export default function SettingsPage() {
         breakDuration: data.breakDuration,
         waterReminder: data.waterReminder,
         focusMode: data.focusMode,
-        hideDndOverlay: data.hideDndOverlay,
       });
     },
     onSuccess: () => {
