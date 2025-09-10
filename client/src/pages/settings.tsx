@@ -22,6 +22,8 @@ const settingsSchema = z.object({
   breakFrequency: z.string().default('30'),
   breakDuration: z.string().default('5'),
   waterReminder: z.boolean().default(true),
+  focusMode: z.boolean().default(false),
+  hideDndOverlay: z.boolean().default(false),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -44,6 +46,8 @@ export default function SettingsPage() {
       breakFrequency: '30',
       breakDuration: '5',
       waterReminder: true,
+      focusMode: false,
+      hideDndOverlay: false,
     },
   });
 
@@ -56,6 +60,8 @@ export default function SettingsPage() {
         breakFrequency: profile.breakFrequency || '30',
         breakDuration: profile.breakDuration || '5',
         waterReminder: profile.waterReminder ?? true,
+        focusMode: profile.focusMode ?? false,
+        hideDndOverlay: profile.hideDndOverlay ?? false,
       });
     }
   }, [profile, isLoading, form]);
@@ -69,6 +75,8 @@ export default function SettingsPage() {
         breakFrequency: data.breakFrequency,
         breakDuration: data.breakDuration,
         waterReminder: data.waterReminder,
+        focusMode: data.focusMode,
+        hideDndOverlay: data.hideDndOverlay,
       });
     },
     onSuccess: () => {
@@ -249,6 +257,28 @@ export default function SettingsPage() {
                           checked={field.value}
                           onCheckedChange={field.onChange}
                           data-testid="switch-water-reminder"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="focusMode"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base font-medium">Focus Mode</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          Disable break and water reminders to minimize distractions
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          data-testid="switch-focus-mode"
                         />
                       </FormControl>
                     </FormItem>
