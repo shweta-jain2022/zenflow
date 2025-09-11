@@ -1,10 +1,16 @@
 import { Link, useLocation } from 'wouter';
-import { Heart, Smile } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, Timer, Heart, Smile, TrendingUp, Settings, Zap } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 const mobileMenuItems = [
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Focus Timer', href: '/focus', icon: Timer },
   { name: 'Mindfulness', href: '/mindfulness', icon: Heart },
   { name: 'Mood & Journal', href: '/mood', icon: Smile },
+  { name: 'Progress', href: '/progress', icon: TrendingUp },
+  { name: 'Integrations', href: '/integrations', icon: Zap },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 interface MobileMenuProps {

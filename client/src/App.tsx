@@ -10,7 +10,6 @@ import { FocusProvider } from "@/contexts/focus-context";
 import { TimerProvider } from "@/contexts/timer-context";
 import { ProtectedRoute } from "@/components/protected-route";
 import { Sidebar } from "@/components/layout/sidebar";
-import { MobileNav } from "@/components/layout/mobile-nav";
 import { TopNav } from "@/components/layout/top-nav";
 import { MobileMenu } from "@/components/layout/mobile-menu";
 import NotFound from "@/pages/not-found";
@@ -95,7 +94,7 @@ function AppContent() {
     <div className="flex h-screen bg-background">
       <Sidebar />
       
-      <div className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+      <div className="flex-1 lg:ml-64">
         <TopNav 
           title="ZenFlow" 
           onMobileMenuToggle={() => setMobileMenuOpen(true)}
@@ -117,8 +116,6 @@ function AppContent() {
           </Switch>
         </main>
       </div>
-      
-      <MobileNav />
       
       {/* Mobile Menu */}
       <MobileMenu 
