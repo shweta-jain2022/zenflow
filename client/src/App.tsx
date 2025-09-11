@@ -12,6 +12,7 @@ import { ProtectedRoute } from "@/components/protected-route";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { TopNav } from "@/components/layout/top-nav";
+import { MobileMenu } from "@/components/layout/mobile-menu";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth";
 import DashboardPage from "@/pages/dashboard";
@@ -35,6 +36,7 @@ function AppContent() {
   const { user, loading, isGuest } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showDndOverlay, setShowDndOverlay] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Check if user has a profile for onboarding
   const { data: profile, isLoading: profileLoading, error, refetch } = useQuery<Profile>({
@@ -94,7 +96,10 @@ function AppContent() {
       <Sidebar />
       
       <div className="flex-1 lg:ml-64 pb-16 lg:pb-0">
-        <TopNav title="ZenFlow" />
+        <TopNav 
+          title="ZenFlow" 
+          onMobileMenuToggle={() => setMobileMenuOpen(true)}
+        />
         <GuestBanner />
         
         <main className="flex-1 overflow-y-auto">
@@ -114,6 +119,12 @@ function AppContent() {
       </div>
       
       <MobileNav />
+      
+      {/* Mobile Menu */}
+      <MobileMenu 
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+      />
       
       {/* Onboarding Modal */}
       <OnboardingModal 
