@@ -86,6 +86,15 @@ export const profiles = pgTable("profiles", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`).notNull(),
 });
 
+export const weeklyReports = pgTable("weekly_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  weekStart: date("week_start").notNull(),
+  weekEnd: date("week_end").notNull(),
+  reportText: text("report_text").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
+});
+
 // Insert schemas
 export const insertTaskSchema = createInsertSchema(tasks).omit({
   id: true,
@@ -128,6 +137,11 @@ export const insertProfileSchema = createInsertSchema(profiles).omit({
   updatedAt: true,
 });
 
+export const insertWeeklyReportSchema = createInsertSchema(weeklyReports).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type Task = typeof tasks.$inferSelect;
 export type InsertTask = z.infer<typeof insertTaskSchema>;
@@ -152,3 +166,6 @@ export type InsertSyncLog = z.infer<typeof insertSyncLogSchema>;
 
 export type Profile = typeof profiles.$inferSelect;
 export type InsertProfile = z.infer<typeof insertProfileSchema>;
+
+export type WeeklyReport = typeof weeklyReports.$inferSelect;
+export type InsertWeeklyReport = z.infer<typeof insertWeeklyReportSchema>;
