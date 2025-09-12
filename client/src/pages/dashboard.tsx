@@ -351,18 +351,16 @@ export default function DashboardPage() {
           
           {/* Generate Report and View Progress Buttons */}
           <div className="text-center space-y-3">
-            <div className="flex flex-col items-center gap-1">
-              <Button 
-                onClick={() => generateReportMutation.mutate()}
-                disabled={generateReportMutation.isPending}
-                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
-                data-testid="button-generate-report"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                {generateReportMutation.isPending ? 'Generating...' : 'Generate Report'}
-              </Button>
-              <span className="text-xs text-muted-foreground">✨AI Generated</span>
-            </div>
+            <Button 
+              onClick={() => generateReportMutation.mutate()}
+              disabled={generateReportMutation.isPending}
+              className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
+              data-testid="button-generate-report"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              {generateReportMutation.isPending ? 'Generating...' : 'Generate Report'}
+              <sup className="ml-1 text-xs opacity-90">✨AI Generated</sup>
+            </Button>
             
             <Link href="/progress">
               <Button variant="outline" data-testid="button-view-detailed-progress">
