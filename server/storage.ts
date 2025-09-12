@@ -55,6 +55,7 @@ export interface IStorage {
   // Journal operations
   getJournals(userId: string): Promise<Journal[]>;
   createJournal(journal: InsertJournal): Promise<Journal>;
+  updateJournal(id: string, userId: string, updates: Partial<InsertJournal>): Promise<Journal | undefined>;
 
   // Focus session operations
   getFocusSessions(userId: string): Promise<FocusSession[]>;
@@ -156,6 +157,15 @@ export class DatabaseStorage implements IStorage {
 
   async createJournal(journal: InsertJournal): Promise<Journal> {
     const result = await db.insert(journals).values(journal).returning();
+    return result[0];
+  }
+
+  async updateJournal(id: string, userId: string, updates: Partial<InsertJournal>): Promise<Journal | undefined> {
+    const result = await db.update(journals)
+      .set(updates)
+      .where(and(eq(journals.id, id), eq(journals.userId, userId)))
+      .returning();
+    
     return result[0];
   }
 

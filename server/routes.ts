@@ -150,6 +150,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/journals/:id", async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const journal = await storage.updateJournal(id, userId, updates);
+      if (!journal) {
+        res.status(404).json({ message: "Journal not found" });
+        return;
+      }
+      
+      res.json(journal);
+    } catch (error) {
+      console.error("Error updating journal:", error);
+      res.status(500).json({ message: "Failed to update journal" });
+    }
+  });
+
   // Focus session routes
   app.get("/api/focus-sessions", async (req, res) => {
     try {

@@ -16,6 +16,7 @@ export const JournalEntry = () => {
   const { checkGuestRestriction } = useGuestRestriction();
   const [content, setContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [editingJournalId, setEditingJournalId] = useState<string | null>(null);
 
   const { data: journals = [] } = useQuery<Journal[]>({
     queryKey: ['/api/journals'],
@@ -32,6 +33,7 @@ export const JournalEntry = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/journals'] });
       queryClient.invalidateQueries({ queryKey: ['/api/progress/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/weekly-reports/latest'] });
       toast({
         title: 'Journal entry saved',
         description: 'Your reflection has been saved successfully.',
@@ -41,14 +43,54 @@ export const JournalEntry = () => {
     },
   });
 
+  const updateJournalMutation = useMutation({
+    mutationFn: async ({ id, content }: { id: string; content: string }) => {
+      return await apiRequest('PATCH', `/api/journals/${id}`, {
+        content: content,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/journals'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/progress/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/weekly-reports/latest'] });
+      toast({
+        title: 'Journal entry updated',
+        description: 'Your reflection has been updated successfully.',
+      });
+      setContent('');
+      setIsEditing(false);
+      setEditingJournalId(null);
+    },
+  });
+
   const handleSave = () => {
     if (checkGuestRestriction('save journal entries')) {
       return;
     }
     
     if (content.trim()) {
-      saveJournalMutation.mutate(content);
+      if (editingJournalId) {
+        updateJournalMutation.mutate({ id: editingJournalId, content });
+      } else {
+        saveJournalMutation.mutate(content);
+      }
     }
+  };
+
+  const handleEdit = (journal: Journal) => {
+    if (checkGuestRestriction('edit journal entries')) {
+      return;
+    }
+    
+    setContent(journal.content);
+    setEditingJournalId(journal.id);
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setContent('');
+    setIsEditing(false);
+    setEditingJournalId(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -75,7 +117,7 @@ export const JournalEntry = () => {
       {/* Journal Entry Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Daily Reflection</CardTitle>
+          <CardTitle>{editingJournalId ? 'Edit Reflection' : 'Daily Reflection'}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <Textarea
@@ -90,13 +132,27 @@ export const JournalEntry = () => {
             <span className="text-sm text-muted-foreground">
               {content.length > 0 ? `${getWordCount(content)} words` : 'Auto-saved'}
             </span>
-            <Button
-              onClick={handleSave}
-              disabled={!content.trim() || saveJournalMutation.isPending}
-              data-testid="button-save-journal"
-            >
-              {saveJournalMutation.isPending ? 'Saving...' : 'Save Entry'}
-            </Button>
+            <div className="flex gap-2">
+              {editingJournalId && (
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  data-testid="button-cancel-journal"
+                >
+                  Cancel
+                </Button>
+              )}
+              <Button
+                onClick={handleSave}
+                disabled={!content.trim() || saveJournalMutation.isPending || updateJournalMutation.isPending}
+                data-testid="button-save-journal"
+              >
+                {(saveJournalMutation.isPending || updateJournalMutation.isPending) ? 
+                  'Saving...' : 
+                  editingJournalId ? 'Update Entry' : 'Save Entry'
+                }
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -141,7 +197,12 @@ export const JournalEntry = () => {
                         <span>•</span>
                         <span>{readTime} min read</span>
                       </div>
-                      <Button variant="ghost" size="sm" data-testid={`button-edit-journal-${journal.id}`}>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleEdit(journal)}
+                        data-testid={`button-edit-journal-${journal.id}`}
+                      >
                         <Edit3 className="w-4 h-4" />
                       </Button>
                     </div>
