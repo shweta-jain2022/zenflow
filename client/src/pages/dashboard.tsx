@@ -1,17 +1,19 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { CheckCircle, Clock, Heart, Smile, Plus, BarChart3, Play, Pause } from 'lucide-react';
+import { CheckCircle, Clock, Heart, Smile, Plus, BarChart3, Play, Pause, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Task, FocusSession, Meditation, Mood } from '@shared/schema';
+import { Task, FocusSession, Meditation, Mood, WeeklyReport } from '@shared/schema';
 import { useAuth } from '@/contexts/auth-context';
 import { useGlobalTimer } from '@/contexts/timer-context';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { Link } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const timer = useGlobalTimer();
+  const { toast } = useToast();
 
   const { data: tasks = [], isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ['/api/tasks'],
@@ -42,6 +44,35 @@ export default function DashboardPage() {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
       queryClient.invalidateQueries({ queryKey: ['/api/progress/stats'] });
     },
+  });
+
+  // Generate weekly report mutation
+  const generateReportMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('POST', '/api/weekly-reports/generate', {});
+    },
+    onSuccess: (report) => {
+      toast({
+        title: "Weekly Report Generated! ✨",
+        description: "Your AI-powered reflection has been created.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/weekly-reports'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/weekly-reports/latest'] });
+    },
+    onError: (error) => {
+      console.error('Error generating report:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate weekly report. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Fetch latest weekly report to show AI reflection
+  const { data: latestReport } = useQuery<WeeklyReport>({
+    queryKey: ['/api/weekly-reports/latest'],
+    enabled: !!user,
   });
 
   // Show loading state while data is being fetched
@@ -305,15 +336,46 @@ export default function DashboardPage() {
           <CardTitle>This Week's Progress</CardTitle>
         </CardHeader>
         <CardContent>
+          {/* AI Weekly Reflection */}
+          {latestReport && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-primary">AI Weekly Reflection</span>
+              </div>
+              <div className="text-sm text-foreground/80 leading-relaxed">
+                {latestReport.reportText.substring(0, 200)}...
+              </div>
+              <Link href="/progress" className="text-xs text-primary hover:underline mt-2 inline-block">
+                Read full reflection →
+              </Link>
+            </div>
+          )}
+          
           <div className="h-64 bg-muted/20 rounded-lg flex items-center justify-center">
             <div className="text-center">
               <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
               <p className="text-muted-foreground mb-2">Progress visualization</p>
-              <Link href="/progress">
-                <Button variant="outline" data-testid="button-view-detailed-progress">
-                  View Detailed Progress
+              
+              {/* Generate Report Button with AI superscript */}
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => generateReportMutation.mutate()}
+                  disabled={generateReportMutation.isPending}
+                  className="relative bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
+                  data-testid="button-generate-report"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {generateReportMutation.isPending ? 'Generating...' : 'Generate Report'}
+                  <sup className="ml-1 text-xs opacity-90">✨AI Generated</sup>
                 </Button>
-              </Link>
+                
+                <Link href="/progress">
+                  <Button variant="outline" data-testid="button-view-detailed-progress">
+                    View Detailed Progress
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </CardContent>
