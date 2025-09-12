@@ -339,44 +339,36 @@ export default function DashboardPage() {
           {/* AI Weekly Reflection */}
           {latestReport && (
             <div className="mb-6 p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium text-primary">AI Weekly Reflection</span>
               </div>
-              <div className="text-sm text-foreground/80 leading-relaxed">
-                {latestReport.reportText.substring(0, 200)}...
+              <div className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                {latestReport.reportText}
               </div>
-              <Link href="/progress" className="text-xs text-primary hover:underline mt-2 inline-block">
-                Read full reflection →
-              </Link>
             </div>
           )}
           
-          <div className="h-64 bg-muted/20 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-              <p className="text-muted-foreground mb-2">Progress visualization</p>
-              
-              {/* Generate Report Button with AI superscript */}
-              <div className="space-y-3">
-                <Button 
-                  onClick={() => generateReportMutation.mutate()}
-                  disabled={generateReportMutation.isPending}
-                  className="relative bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
-                  data-testid="button-generate-report"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  {generateReportMutation.isPending ? 'Generating...' : 'Generate Report'}
-                  <sup className="ml-1 text-xs opacity-90">✨AI Generated</sup>
-                </Button>
-                
-                <Link href="/progress">
-                  <Button variant="outline" data-testid="button-view-detailed-progress">
-                    View Detailed Progress
-                  </Button>
-                </Link>
-              </div>
+          {/* Generate Report and View Progress Buttons */}
+          <div className="text-center space-y-3">
+            <div className="flex flex-col items-center gap-1">
+              <Button 
+                onClick={() => generateReportMutation.mutate()}
+                disabled={generateReportMutation.isPending}
+                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
+                data-testid="button-generate-report"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                {generateReportMutation.isPending ? 'Generating...' : 'Generate Report'}
+              </Button>
+              <span className="text-xs text-muted-foreground">✨AI Generated</span>
             </div>
+            
+            <Link href="/progress">
+              <Button variant="outline" data-testid="button-view-detailed-progress">
+                View Detailed Progress
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
