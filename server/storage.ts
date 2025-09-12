@@ -10,6 +10,7 @@ import {
   integrations,
   syncLogs,
   profiles,
+  weeklyReports,
   type Task,
   type InsertTask,
   type Mood,
@@ -25,7 +26,9 @@ import {
   type SyncLog,
   type InsertSyncLog,
   type Profile,
-  type InsertProfile
+  type InsertProfile,
+  type WeeklyReport,
+  type InsertWeeklyReport
 } from "@shared/schema";
 
 // Database connection
@@ -75,6 +78,11 @@ export interface IStorage {
   // Profile operations
   getProfile(userId: string): Promise<Profile | undefined>;
   createOrUpdateProfile(profile: InsertProfile): Promise<Profile>;
+
+  // Weekly report operations
+  getWeeklyReports(userId: string): Promise<WeeklyReport[]>;
+  getLatestWeeklyReport(userId: string): Promise<WeeklyReport | undefined>;
+  createOrUpdateWeeklyReport(report: InsertWeeklyReport): Promise<WeeklyReport>;
 
   // Progress operations
   getProgressStats(userId: string): Promise<{
@@ -436,6 +444,56 @@ export class DatabaseStorage implements IStorage {
     }
     
     return streak;
+  }
+
+  async getWeeklyReports(userId: string): Promise<WeeklyReport[]> {
+    return await db.select()
+      .from(weeklyReports)
+      .where(eq(weeklyReports.userId, userId))
+      .orderBy(desc(weeklyReports.createdAt));
+  }
+
+  async getLatestWeeklyReport(userId: string): Promise<WeeklyReport | undefined> {
+    const reports = await db.select()
+      .from(weeklyReports)
+      .where(eq(weeklyReports.userId, userId))
+      .orderBy(desc(weeklyReports.createdAt))
+      .limit(1);
+    
+    return reports[0];
+  }
+
+  async createOrUpdateWeeklyReport(report: InsertWeeklyReport): Promise<WeeklyReport> {
+    // Check if report already exists for this week
+    const existing = await db.select()
+      .from(weeklyReports)
+      .where(and(
+        eq(weeklyReports.userId, report.userId),
+        eq(weeklyReports.weekStart, report.weekStart)
+      ));
+
+    if (existing.length > 0) {
+      // Update existing report
+      const updated = await db.update(weeklyReports)
+        .set({
+          reportText: report.reportText,
+          weekEnd: report.weekEnd
+        })
+        .where(eq(weeklyReports.id, existing[0].id))
+        .returning();
+      
+      return updated[0];
+    } else {
+      // Create new report
+      const created = await db.insert(weeklyReports)
+        .values({
+          ...report,
+          id: sql`gen_random_uuid()`
+        })
+        .returning();
+      
+      return created[0];
+    }
   }
 }
 

@@ -9,6 +9,7 @@ import {
   insertMeditationSchema,
   insertProfileSchema 
 } from "@shared/schema";
+import { generateWeeklyReport } from "./gemini";
 import { z } from "zod";
 import { registerIntegrationRoutes } from "./integrations/integration-routes";
 
@@ -251,6 +252,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching progress stats:", error);
       res.status(500).json({ message: "Failed to fetch progress stats" });
+    }
+  });
+
+  // Weekly report routes
+  app.get("/api/weekly-reports", async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const reports = await storage.getWeeklyReports(userId);
+      res.json(reports);
+    } catch (error) {
+      console.error("Error fetching weekly reports:", error);
+      res.status(500).json({ message: "Failed to fetch weekly reports" });
+    }
+  });
+
+  app.get("/api/weekly-reports/latest", async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const report = await storage.getLatestWeeklyReport(userId);
+      if (!report) {
+        res.status(404).json({ message: "No weekly report found" });
+        return;
+      }
+      res.json(report);
+    } catch (error) {
+      console.error("Error fetching latest weekly report:", error);
+      res.status(500).json({ message: "Failed to fetch latest weekly report" });
+    }
+  });
+
+  app.post("/api/weekly-reports/generate", async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      
+      // Get current week's start and end dates (Monday to Sunday)
+      const today = new Date();
+      const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
+      
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - daysFromMonday);
+      weekStart.setHours(0, 0, 0, 0);
+      
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      weekEnd.setHours(23, 59, 59, 999);
+
+      // Fetch journals and moods from current week
+      const journals = await storage.getJournals(userId);
+      const moods = await storage.getMoods(userId);
+
+      const weekJournals = journals.filter(j => {
+        const createdAt = new Date(j.createdAt);
+        return createdAt >= weekStart && createdAt <= weekEnd;
+      });
+
+      const weekMoods = moods.filter(m => {
+        const createdAt = new Date(m.createdAt);
+        return createdAt >= weekStart && createdAt <= weekEnd;
+      });
+
+      // Generate report using Gemini
+      const journalContents = weekJournals.map(j => j.content);
+      const moodLabels = weekMoods.map(m => m.mood);
+      
+      const reportText = await generateWeeklyReport(journalContents, moodLabels);
+
+      // Save or update the report
+      const report = await storage.createOrUpdateWeeklyReport({
+        userId,
+        weekStart: weekStart.toISOString().split('T')[0], // Format as YYYY-MM-DD
+        weekEnd: weekEnd.toISOString().split('T')[0],
+        reportText
+      });
+
+      res.status(201).json(report);
+    } catch (error) {
+      console.error("Error generating weekly report:", error);
+      res.status(500).json({ message: "Failed to generate weekly report" });
     }
   });
 
