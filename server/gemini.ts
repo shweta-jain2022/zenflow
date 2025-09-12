@@ -32,14 +32,12 @@ ${moodText}
   ✅ Instead, write everything in natural flowing paragraphs that sound like a coach speaking directly to the user.`;
 
     try {
-        const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
-        
-        const result = await model.generateContent({
-            contents: [{ role: 'user', parts: [{ text: prompt }] }]
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt
         });
 
-        const response = await result.response;
-        return response.text() || "I wasn't able to generate a reflection this week. Please try again later.";
+        return response.text || "I wasn't able to generate a reflection this week. Please try again later.";
     } catch (error) {
         console.error("Error generating weekly report:", error);
         throw new Error("Failed to generate weekly report");
