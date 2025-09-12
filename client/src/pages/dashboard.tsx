@@ -357,9 +357,7 @@ export default function DashboardPage() {
               className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
               data-testid="button-generate-report"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
-              {generateReportMutation.isPending ? 'Generating...' : 'Generate Report'}
-              <sup className="ml-1 text-xs opacity-90">✨AI Generated</sup>
+              {generateReportMutation.isPending ? 'Generating...' : '✨ Get AI Generated Report'}
             </Button>
             
             <Link href="/progress">
