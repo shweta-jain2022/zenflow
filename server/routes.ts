@@ -1,23 +1,30 @@
 import type { Express } from "express";
-import { createServer, type Server } from "http";
+// import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { 
-  insertTaskSchema, 
-  insertMoodSchema, 
-  insertJournalSchema, 
-  insertFocusSessionSchema, 
+import {
+  insertTaskSchema,
+  insertMoodSchema,
+  insertJournalSchema,
+  insertFocusSessionSchema,
   insertMeditationSchema,
-  insertProfileSchema 
+  insertProfileSchema,
 } from "@shared/schema";
 import { generateWeeklyReport } from "./gemini";
 import { z } from "zod";
 import { registerIntegrationRoutes } from "./integrations/integration-routes";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+//export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express): Promise<void> {
   // Middleware to get user ID from session/auth
+  //const getUserId = (req: any): string => {
   const getUserId = (req: any): string => {
     // Extract user ID from request body (sent by frontend) or headers
-    return req.body?.userId || req.headers['user-id'] || '208b86fe-e110-4a7c-9996-b04cceadd9ec';
+    //return req.body?.userId || req.headers['user-id'] || '208b86fe-e110-4a7c-9996-b04cceadd9ec';
+    return (
+      req.body?.userId ||
+      req.headers["user-id"] ||
+      "208b86fe-e110-4a7c-9996-b04cceadd9ec"
+    );
   };
 
   // Task routes
@@ -43,7 +50,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(task);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid task data", errors: error.errors });
+        res
+          .status(400)
+          .json({ message: "Invalid task data", errors: error.errors });
       } else {
         console.error("Error creating task:", error);
         res.status(500).json({ message: "Failed to create task" });
@@ -56,13 +65,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = getUserId(req);
       const { id } = req.params;
       const updates = req.body;
-      
+
       const task = await storage.updateTask(id, userId, updates);
       if (!task) {
         res.status(404).json({ message: "Task not found" });
         return;
       }
-      
+
       res.json(task);
     } catch (error) {
       console.error("Error updating task:", error);
@@ -74,13 +83,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = getUserId(req);
       const { id } = req.params;
-      
+
       const deleted = await storage.deleteTask(id, userId);
       if (!deleted) {
         res.status(404).json({ message: "Task not found" });
         return;
       }
-      
+
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -111,7 +120,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(mood);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid mood data", errors: error.errors });
+        res
+          .status(400)
+          .json({ message: "Invalid mood data", errors: error.errors });
       } else {
         console.error("Error creating mood:", error);
         res.status(500).json({ message: "Failed to create mood" });
@@ -142,7 +153,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(journal);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid journal data", errors: error.errors });
+        res
+          .status(400)
+          .json({ message: "Invalid journal data", errors: error.errors });
       } else {
         console.error("Error creating journal:", error);
         res.status(500).json({ message: "Failed to create journal" });
@@ -155,13 +168,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = getUserId(req);
       const { id } = req.params;
       const updates = req.body;
-      
+
       const journal = await storage.updateJournal(id, userId, updates);
       if (!journal) {
         res.status(404).json({ message: "Journal not found" });
         return;
       }
-      
+
       res.json(journal);
     } catch (error) {
       console.error("Error updating journal:", error);
@@ -192,7 +205,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(session);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid focus session data", errors: error.errors });
+        res.status(400).json({
+          message: "Invalid focus session data",
+          errors: error.errors,
+        });
       } else {
         console.error("Error creating focus session:", error);
         res.status(500).json({ message: "Failed to create focus session" });
@@ -223,7 +239,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(meditation);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid meditation data", errors: error.errors });
+        res
+          .status(400)
+          .json({ message: "Invalid meditation data", errors: error.errors });
       } else {
         console.error("Error creating meditation:", error);
         res.status(500).json({ message: "Failed to create meditation" });
@@ -254,7 +272,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(profile);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid profile data", errors: error.errors });
+        res
+          .status(400)
+          .json({ message: "Invalid profile data", errors: error.errors });
       } else {
         console.error("Error creating/updating profile:", error);
         res.status(500).json({ message: "Failed to create/update profile" });
@@ -304,16 +324,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/weekly-reports/generate", async (req, res) => {
     try {
       const userId = getUserId(req);
-      
+
       // Get current week's start and end dates (Monday to Sunday)
       const today = new Date();
       const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
       const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
-      
+
       const weekStart = new Date(today);
       weekStart.setDate(today.getDate() - daysFromMonday);
       weekStart.setHours(0, 0, 0, 0);
-      
+
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
       weekEnd.setHours(23, 59, 59, 999);
@@ -322,28 +342,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const journals = await storage.getJournals(userId);
       const moods = await storage.getMoods(userId);
 
-      const weekJournals = journals.filter(j => {
+      const weekJournals = journals.filter((j) => {
         const createdAt = new Date(j.createdAt);
         return createdAt >= weekStart && createdAt <= weekEnd;
       });
 
-      const weekMoods = moods.filter(m => {
+      const weekMoods = moods.filter((m) => {
         const createdAt = new Date(m.createdAt);
         return createdAt >= weekStart && createdAt <= weekEnd;
       });
 
       // Generate report using Gemini
-      const journalContents = weekJournals.map(j => j.content);
-      const moodLabels = weekMoods.map(m => m.mood);
-      
-      const reportText = await generateWeeklyReport(journalContents, moodLabels);
+      const journalContents = weekJournals.map((j) => j.content);
+      const moodLabels = weekMoods.map((m) => m.mood);
+
+      const reportText = await generateWeeklyReport(
+        journalContents,
+        moodLabels,
+      );
 
       // Save or update the report
       const report = await storage.createOrUpdateWeeklyReport({
         userId,
-        weekStart: weekStart.toISOString().split('T')[0], // Format as YYYY-MM-DD
-        weekEnd: weekEnd.toISOString().split('T')[0],
-        reportText
+        weekStart: weekStart.toISOString().split("T")[0], // Format as YYYY-MM-DD
+        weekEnd: weekEnd.toISOString().split("T")[0],
+        reportText,
       });
 
       res.status(201).json(report);
@@ -356,6 +379,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register integration routes
   registerIntegrationRoutes(app);
 
-  const httpServer = createServer(app);
-  return httpServer;
+  // const httpServer = createServer(app);
+  // return httpServer;
 }
