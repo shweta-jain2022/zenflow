@@ -1,4 +1,4 @@
-# 🌱 Mindfulness + Productivity App  
+# 🌱 A Mindfulness + Productivity App  
 
 A simple app to help track habits, focus, and well-being.  
 Built with **Vite + React**, deployed on **Hugging Face Spaces**.  
